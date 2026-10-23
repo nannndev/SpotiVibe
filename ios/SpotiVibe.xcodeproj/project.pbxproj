@@ -1,0 +1,397 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		119C88D379AA0777A0278CCA /* LyricCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D18D4785DA396761570F1057 /* LyricCardStyle.swift */; };
+		1821DBBBB20779EE84AD5FDE /* SpotifyPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019BBA5E19491AD2FAF75089 /* SpotifyPlayerService.swift */; };
+		2FB44FA92E23914AC18E409B /* LyricsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBEE15CE664C3792DA43FFD /* LyricsService.swift */; };
+		3C1093A032E46C695D0777CA /* LyricCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB10CE5CB65C56BE359604 /* LyricCardView.swift */; };
+		495871A474DFAB1885B8B91D /* SpotifyAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59209538B6BC5BE44BBF75BE /* SpotifyAuthService.swift */; };
+		4B312879056D0CB38FBBDB2E /* LyricVideoGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E79CAB742ACC7420068C9AD /* LyricVideoGenerator.swift */; };
+		5843BE2387B06EFB23FBFA8C /* Lyrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F7B72B126FF24CEDE653E14 /* Lyrics.swift */; };
+		6CAB72FA2D0DD4CA178EFE6A /* SpotiVibeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A809F2A65F935F4C93B4A4E /* SpotiVibeApp.swift */; };
+		9DCF8723B765CBEB4B6F5175 /* LyricsShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9C758471D92725696B4C79 /* LyricsShareView.swift */; };
+		A7989D10D19460E65FBC6E34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EFF1DA4FFDE915B01EB29703 /* Assets.xcassets */; };
+		BE40EDBC65304AFBF1A8E978 /* DirectShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9DCF047E2182B344CBDC03 /* DirectShareService.swift */; };
+		D4B1AB38EB8D6414CE43FB75 /* CardAspectRatio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669DFF2EBD7B07196F8975EF /* CardAspectRatio.swift */; };
+		FB226A28B9245ADB8E2A9404 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17612C964F0C20C490BB06F /* Track.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		019BBA5E19491AD2FAF75089 /* SpotifyPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyPlayerService.swift; sourceTree = "<group>"; };
+		0CFD634AB556AFF4C1C7E943 /* SpotiVibe.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SpotiVibe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A809F2A65F935F4C93B4A4E /* SpotiVibeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotiVibeApp.swift; sourceTree = "<group>"; };
+		4EBEE15CE664C3792DA43FFD /* LyricsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsService.swift; sourceTree = "<group>"; };
+		4F9DCF047E2182B344CBDC03 /* DirectShareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectShareService.swift; sourceTree = "<group>"; };
+		59209538B6BC5BE44BBF75BE /* SpotifyAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyAuthService.swift; sourceTree = "<group>"; };
+		5DFB10CE5CB65C56BE359604 /* LyricCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricCardView.swift; sourceTree = "<group>"; };
+		5F7B72B126FF24CEDE653E14 /* Lyrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lyrics.swift; sourceTree = "<group>"; };
+		669DFF2EBD7B07196F8975EF /* CardAspectRatio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardAspectRatio.swift; sourceTree = "<group>"; };
+		7790B48CDC37D24888F8F21A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7E79CAB742ACC7420068C9AD /* LyricVideoGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricVideoGenerator.swift; sourceTree = "<group>"; };
+		C17612C964F0C20C490BB06F /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
+		D18D4785DA396761570F1057 /* LyricCardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricCardStyle.swift; sourceTree = "<group>"; };
+		EA9C758471D92725696B4C79 /* LyricsShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsShareView.swift; sourceTree = "<group>"; };
+		EFF1DA4FFDE915B01EB29703 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		06D90DDB944D0A021DDC62EF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				EFF1DA4FFDE915B01EB29703 /* Assets.xcassets */,
+				7790B48CDC37D24888F8F21A /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		0E2EC9CC49969EAAF9D76FEC /* Generator */ = {
+			isa = PBXGroup;
+			children = (
+				7E79CAB742ACC7420068C9AD /* LyricVideoGenerator.swift */,
+			);
+			path = Generator;
+			sourceTree = "<group>";
+		};
+		2097D7204BD56DA1B2BA7998 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				2A809F2A65F935F4C93B4A4E /* SpotiVibeApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		40C00CD2FD04D9A23A992325 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				669DFF2EBD7B07196F8975EF /* CardAspectRatio.swift */,
+				D18D4785DA396761570F1057 /* LyricCardStyle.swift */,
+				5F7B72B126FF24CEDE653E14 /* Lyrics.swift */,
+				C17612C964F0C20C490BB06F /* Track.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		50F5D0067F20EC88E0EF2A6C /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				4F9DCF047E2182B344CBDC03 /* DirectShareService.swift */,
+				4EBEE15CE664C3792DA43FFD /* LyricsService.swift */,
+				59209538B6BC5BE44BBF75BE /* SpotifyAuthService.swift */,
+				019BBA5E19491AD2FAF75089 /* SpotifyPlayerService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		7BED0FE37E1C1499CC393605 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0CFD634AB556AFF4C1C7E943 /* SpotiVibe.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AF19733EFC3BB10C73E5FBD9 /* SpotiVibe */ = {
+			isa = PBXGroup;
+			children = (
+				2097D7204BD56DA1B2BA7998 /* App */,
+				0E2EC9CC49969EAAF9D76FEC /* Generator */,
+				40C00CD2FD04D9A23A992325 /* Models */,
+				06D90DDB944D0A021DDC62EF /* Resources */,
+				50F5D0067F20EC88E0EF2A6C /* Services */,
+				BC2EE0B758E86D6B4FF4387C /* Views */,
+			);
+			path = SpotiVibe;
+			sourceTree = "<group>";
+		};
+		BC2EE0B758E86D6B4FF4387C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5DFB10CE5CB65C56BE359604 /* LyricCardView.swift */,
+				EA9C758471D92725696B4C79 /* LyricsShareView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D4449FFAC2E57877503B82AE = {
+			isa = PBXGroup;
+			children = (
+				AF19733EFC3BB10C73E5FBD9 /* SpotiVibe */,
+				7BED0FE37E1C1499CC393605 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B9188D746B988DFC9445B528 /* SpotiVibe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4623D2D7A16074C2BAED9A12 /* Build configuration list for PBXNativeTarget "SpotiVibe" */;
+			buildPhases = (
+				E14474B2328FC60BA01F0F14 /* Sources */,
+				3771177ADA5D32A6E459A7E4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SpotiVibe;
+			packageProductDependencies = (
+			);
+			productName = SpotiVibe;
+			productReference = 0CFD634AB556AFF4C1C7E943 /* SpotiVibe.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C943551E7F42BD93B8770F60 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = C0D946F53797ADDADF8B5B20 /* Build configuration list for PBXProject "SpotiVibe" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = D4449FFAC2E57877503B82AE;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7BED0FE37E1C1499CC393605 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B9188D746B988DFC9445B528 /* SpotiVibe */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3771177ADA5D32A6E459A7E4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7989D10D19460E65FBC6E34 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E14474B2328FC60BA01F0F14 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D4B1AB38EB8D6414CE43FB75 /* CardAspectRatio.swift in Sources */,
+				BE40EDBC65304AFBF1A8E978 /* DirectShareService.swift in Sources */,
+				119C88D379AA0777A0278CCA /* LyricCardStyle.swift in Sources */,
+				3C1093A032E46C695D0777CA /* LyricCardView.swift in Sources */,
+				4B312879056D0CB38FBBDB2E /* LyricVideoGenerator.swift in Sources */,
+				5843BE2387B06EFB23FBFA8C /* Lyrics.swift in Sources */,
+				2FB44FA92E23914AC18E409B /* LyricsService.swift in Sources */,
+				9DCF8723B765CBEB4B6F5175 /* LyricsShareView.swift in Sources */,
+				6CAB72FA2D0DD4CA178EFE6A /* SpotiVibeApp.swift in Sources */,
+				495871A474DFAB1885B8B91D /* SpotifyAuthService.swift in Sources */,
+				1821DBBBB20779EE84AD5FDE /* SpotifyPlayerService.swift in Sources */,
+				FB226A28B9245ADB8E2A9404 /* Track.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5632305E6D500F657EC0BDCC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8B7273A84D32EAD7E59EC7BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				INFOPLIST_FILE = SpotiVibe/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.spotivibe;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A3B0494CF663A192C03A8C88 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				INFOPLIST_FILE = SpotiVibe/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.spotivibe;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		EBCF882E009C56AB3C4335BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.10;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4623D2D7A16074C2BAED9A12 /* Build configuration list for PBXNativeTarget "SpotiVibe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B7273A84D32EAD7E59EC7BC /* Debug */,
+				A3B0494CF663A192C03A8C88 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C0D946F53797ADDADF8B5B20 /* Build configuration list for PBXProject "SpotiVibe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5632305E6D500F657EC0BDCC /* Debug */,
+				EBCF882E009C56AB3C4335BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C943551E7F42BD93B8770F60 /* Project object */;
+}
