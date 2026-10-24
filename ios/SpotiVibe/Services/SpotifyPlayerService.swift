@@ -5,7 +5,9 @@ import Combine
 public class SpotifyPlayerService: ObservableObject {
     public static let shared = SpotifyPlayerService()
 
-    @Published public var currentTrack: Track? = Track.sample
+    @Published public var currentTrack: Track? = Track.sample {
+        didSet { if currentTrack?.id != oldValue?.id, let currentTrack { WidgetBridge.publish(currentTrack) } }
+    }
     @Published public var isPolling: Bool = false
     @Published public var lastSyncTime: Date = Date()
     @Published public var basePosition: Double = 45.0

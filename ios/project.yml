@@ -28,6 +28,7 @@ targets:
         com.apple.security.application-groups: [group.com.naneps.spotivibe]
     dependencies:
       - target: SpotiVibeShare
+      - target: SpotiVibeWidget
   SpotiVibeShare:
     type: app-extension
     platform: iOS
@@ -42,5 +43,21 @@ targets:
         INFOPLIST_FILE: SpotiVibeShare/Info.plist
     entitlements:
       path: SpotiVibeShare/SpotiVibeShare.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.naneps.spotivibe]
+  SpotiVibeWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: SpotiVibeWidget
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.naneps.spotivibe.widget
+        DEVELOPMENT_TEAM: 6HF6B53G32
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: SpotiVibeWidget/Info.plist
+    entitlements:
+      path: SpotiVibeWidget/SpotiVibeWidget.entitlements
       properties:
         com.apple.security.application-groups: [group.com.naneps.spotivibe]
