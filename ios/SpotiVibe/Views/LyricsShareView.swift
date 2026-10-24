@@ -32,6 +32,7 @@ public struct LyricsShareView: View {
     @State private var deckExpanded = true
     @AppStorage("studio.text") private var textStyle = LyricTextStyle()
     @AppStorage("studio.autoColor") private var autoColor = true
+    @AppStorage("studio.highlightDefault") private var highlightDefaultApplied = false
     @State private var artworkAccent: Color? = nil
     /// Album art as a real image: ImageRenderer snapshots immediately, so an AsyncImage would export blank.
     @State private var albumArt: UIImage? = nil
@@ -208,6 +209,11 @@ public struct LyricsShareView: View {
                 coverFrame = coverVideo?.previewFrame(at: previewElapsed, playing: isPlaying)
             }
             .task {
+                // builds before Highlight existed saved Karaoke as the default; switch those once
+                if !highlightDefaultApplied {
+                    if textStyle.animation == .karaoke { textStyle.animation = .highlight }
+                    highlightDefaultApplied = true
+                }
                 await lyricsService.fetchLyrics(for: currentTrack)
             }
             .task(id: currentTrack.artworkURL) {

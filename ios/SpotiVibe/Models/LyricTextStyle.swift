@@ -6,7 +6,7 @@ public struct LyricTextStyle: Equatable {
     public var font: LyricFont = .auto
     public var color: Color? = nil
     public var effect: LyricEffect = .none
-    public var animation: LyricAnimation = .karaoke
+    public var animation: LyricAnimation = .highlight
     public var showWatermark = true
 
     public init() {}
@@ -14,11 +14,13 @@ public struct LyricTextStyle: Equatable {
 
 /// How the active line enters in video mode.
 public enum LyricAnimation: String, CaseIterable, Identifiable {
-    case karaoke, words, typewriter, fade
+    /// OpenNotchi style: the sung line switches to bold at its timestamp, the rest stay dim. Default.
+    case highlight, karaoke, words, typewriter, fade
 
     public var id: String { rawValue }
     public var name: String {
         switch self {
+        case .highlight: return "Highlight"
         case .karaoke: return "Karaoke"
         case .words: return "Word by word"
         case .typewriter: return "Typewriter"
@@ -38,7 +40,7 @@ extension LyricTextStyle: RawRepresentable {
         color = Self.color(hex: p[2])
         effect = LyricEffect(rawValue: p[3]) ?? .none
         if p.count == 6 {
-            animation = LyricAnimation(rawValue: p[4]) ?? .karaoke
+            animation = LyricAnimation(rawValue: p[4]) ?? .highlight
             showWatermark = p[5] != "0"
         }
     }
@@ -224,7 +226,7 @@ enum LyricPlayheadSelfCheck {
         assert(LyricTextStyle(rawValue: LyricTextStyle().rawValue)?.rawValue == LyricTextStyle().rawValue, "default round-trip")
         assert(LyricTextStyle(rawValue: "garbage") == nil, "rejects bad input")
         let legacy = LyricTextStyle(rawValue: "center|serif||glow")
-        assert(legacy?.effect == .glow && legacy?.animation == .karaoke && legacy?.showWatermark == true, "loads old 4-part string")
+        assert(legacy?.effect == .glow && legacy?.animation == .highlight && legacy?.showWatermark == true, "loads old 4-part string")
 
         // typewriter/words reveal counts
         assert(LyricCardView.revealCount(of: 10, progress: 0) == 0, "reveal start")

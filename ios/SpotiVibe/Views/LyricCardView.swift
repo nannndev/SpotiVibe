@@ -229,6 +229,12 @@ public struct LyricCardView: View {
 
             Group {
                 switch textStyle.animation {
+                case .highlight:
+                    let w: Font.Weight = isActive ? weight : .medium
+                    Text(text)
+                        .font(textStyle.font.font(size: size, weight: w) ?? .system(size: size, weight: w, design: design))
+                        .foregroundStyle(base.opacity(isActive ? 1 : 0.35))
+                        .scaleEffect(isActive ? 1.02 : 1, anchor: UnitPoint(x: align == .leading ? 0 : (align == .trailing ? 1 : 0.5), y: 0.5))
                 case .fade:
                     Text(text).foregroundStyle(base.opacity(isActive ? 0.25 + 0.75 * pop : (isPast ? 0.45 : 0.2)))
                 case .typewriter:
