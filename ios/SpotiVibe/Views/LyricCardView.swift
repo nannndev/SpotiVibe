@@ -9,6 +9,9 @@ public struct LyricCardView: View {
     public var duration: Double = 15
     public var elapsed: Double = 0
     public var activeLineIndex: Int? = nil
+    /// 0…1 through the active line; drives the karaoke fill in video mode.
+    public var lineProgress: Double = 0
+    public var textStyle = LyricTextStyle()
     public var style: LyricCardStyle = .aura
     public var backdropImage: UIImage? = nil
     public var backdropBlur: CGFloat = 14
@@ -24,6 +27,8 @@ public struct LyricCardView: View {
         duration: Double = 15,
         elapsed: Double = 0,
         activeLineIndex: Int? = nil,
+        lineProgress: Double = 0,
+        textStyle: LyricTextStyle = LyricTextStyle(),
         style: LyricCardStyle = .aura,
         backdropImage: UIImage? = nil,
         backdropBlur: CGFloat = 14,
@@ -38,6 +43,8 @@ public struct LyricCardView: View {
         self.duration = duration
         self.elapsed = elapsed
         self.activeLineIndex = activeLineIndex
+        self.lineProgress = lineProgress
+        self.textStyle = textStyle
         self.style = style
         self.backdropImage = backdropImage
         self.backdropBlur = backdropBlur
@@ -172,17 +179,16 @@ public struct LyricCardView: View {
 
     // MARK: - Lyrics Block
     private var lyricsBlock: some View {
-        VStack(alignment: .leading, spacing: lyricSize * 0.4) {
+        let align = textStyle.alignment ?? .leading
+        return VStack(alignment: align.horizontal, spacing: lyricSize * 0.4) {
             ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
                 let isCurrent = activeLineIndex == nil || activeLineIndex == index
                 let textColor: Color = (style == .paper)
                     ? Color(red: 0.15, green: 0.13, blue: 0.12)
                     : .white
 
-                Text(line)
-                    .font(.system(size: lyricSize, weight: isCurrent ? .bold : .medium, design: style == .paper ? .serif : .rounded))
-                    .foregroundStyle(isCurrent ? textColor : textColor.opacity(0.32))
-                    .shadow(color: isCurrent && activeLineIndex != nil ? textColor.opacity(0.6) : .clear, radius: 8)
+                lyricLine(line, index: index, size: lyricSize, design: style == .paper ? .serif : .rounded,
+                          color: textColor, glow: style == .paper ? .clear : accentColor, align: align)
                     .padding(.horizontal, style == .paper && isCurrent && activeLineIndex != nil ? 6 : 0)
                     .padding(.vertical, style == .paper && isCurrent && activeLineIndex != nil ? 2 : 0)
                     .background(
@@ -192,7 +198,52 @@ public struct LyricCardView: View {
                     )
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .multilineTextAlignment(align)
+        .frame(maxWidth: .infinity, alignment: align.frame)
+    }
+
+    // MARK: - Animated Lyric Line
+    /// One lyric line. Photo: static. Video: past lines dim, the active one pops in and fills left→right
+    /// with its progress. Everything is derived from `lineProgress` (no SwiftUI animations) so the
+    /// exported frames, rendered one by one, move exactly like the preview.
+    @ViewBuilder
+    private func lyricLine(_ text: String, index: Int, size: CGFloat, weight: Font.Weight = .bold,
+                           design: Font.Design, color: Color, glow: Color, align: TextAlignment) -> some View {
+        let font = textStyle.font.font(size: size, weight: weight) ?? .system(size: size, weight: weight, design: design)
+        let base = textStyle.color ?? color
+
+        if let active = activeLineIndex {
+            let isActive = index == active
+            let isPast = index < active
+            let t = min(lineProgress * 5, 1)
+            let pop = isActive ? 1 - pow(1 - t, 3) : 0 // ease-out over the first ~20% of the line
+
+            Text(text)
+                .font(font)
+                .foregroundStyle(base.opacity(isPast ? 0.5 : (isActive ? 0.4 : 0.25)))
+                .overlay {
+                    if isActive {
+                        Text(text)
+                            .font(font)
+                            .foregroundStyle(base)
+                            .mask {
+                                // soft edge sweeping across the line
+                                LinearGradient(stops: [
+                                    .init(color: .black, location: max(0, lineProgress - 0.04)),
+                                    .init(color: .clear, location: min(1, lineProgress + 0.04))
+                                ], startPoint: .leading, endPoint: .trailing)
+                            }
+                    }
+                }
+                .scaleEffect(1 + 0.06 * pop, anchor: UnitPoint(x: align == .leading ? 0 : (align == .trailing ? 1 : 0.5), y: 0.5))
+                .offset(y: isActive ? 6 * (1 - pop) : 0)
+                .modifier(LyricEffectModifier(effect: textStyle.effect, glow: glow, strength: isActive ? pop : 0.4))
+        } else {
+            Text(text)
+                .font(font)
+                .foregroundStyle(base)
+                .modifier(LyricEffectModifier(effect: textStyle.effect, glow: glow, strength: 1))
+        }
     }
 
     // MARK: - Layout: Player
@@ -218,16 +269,15 @@ public struct LyricCardView: View {
 
             Spacer(minLength: 8)
 
-            VStack(spacing: 8) {
+            let align = textStyle.alignment ?? .center
+            VStack(alignment: align.horizontal, spacing: 8) {
                 ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
-                    let isCurrent = activeLineIndex == nil || activeLineIndex == index
-                    Text(line)
-                        .font(.system(size: min(lyricSize, 19), weight: isCurrent ? .bold : .medium, design: .rounded))
-                        .foregroundStyle(isCurrent ? .white : .white.opacity(0.32))
-                        .shadow(color: isCurrent && activeLineIndex != nil ? .white.opacity(0.6) : .clear, radius: 8)
+                    lyricLine(line, index: index, size: min(lyricSize, 19), design: .rounded,
+                              color: .white, glow: .white, align: align)
                 }
             }
-            .multilineTextAlignment(.center)
+            .multilineTextAlignment(align)
+            .frame(maxWidth: .infinity, alignment: align.frame)
 
             Spacer(minLength: 12)
 
@@ -307,15 +357,15 @@ public struct LyricCardView: View {
 
             Spacer()
 
-            VStack(alignment: .leading, spacing: 10) {
+            let align = textStyle.alignment ?? .leading
+            VStack(alignment: align.horizontal, spacing: 10) {
                 ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
-                    let isCurrent = activeLineIndex == nil || activeLineIndex == index
-                    Text(line.uppercased())
-                        .font(.system(size: lyricSize, weight: .heavy, design: .monospaced))
-                        .foregroundStyle(isCurrent ? .white : .white.opacity(0.35))
-                        .shadow(color: isCurrent ? Color.cyan.opacity(0.8) : .clear, radius: 8)
+                    lyricLine(line.uppercased(), index: index, size: lyricSize, weight: .heavy, design: .monospaced,
+                              color: .white, glow: .cyan, align: align)
                 }
             }
+            .multilineTextAlignment(align)
+            .frame(maxWidth: .infinity, alignment: align.frame)
 
             Spacer()
 
@@ -455,15 +505,15 @@ public struct LyricCardView: View {
 
             Spacer(minLength: 12)
 
-            VStack(alignment: .leading, spacing: 8) {
+            let align = textStyle.alignment ?? .leading
+            VStack(alignment: align.horizontal, spacing: 8) {
                 ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
-                    let isCurrent = activeLineIndex == nil || activeLineIndex == index
-                    Text(line)
-                        .font(.system(size: lyricSize, weight: .bold, design: .rounded))
-                        .foregroundStyle(isCurrent ? .white : .white.opacity(0.35))
-                        .shadow(color: isCurrent && activeLineIndex != nil ? accentColor.opacity(0.9) : .clear, radius: 10)
+                    lyricLine(line, index: index, size: lyricSize, design: .rounded,
+                              color: .white, glow: accentColor, align: align)
                 }
             }
+            .multilineTextAlignment(align)
+            .frame(maxWidth: .infinity, alignment: align.frame)
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
@@ -503,9 +553,12 @@ public struct LyricCardView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     ForEach(Array(lines.prefix(4).enumerated()), id: \.offset) { index, line in
                         let isCurrent = activeLineIndex == nil || activeLineIndex == index
+                        let ink = textStyle.color ?? Color(red: 0.15, green: 0.13, blue: 0.12)
+                        let size = min(lyricSize * 0.65, 14)
+                        let weight: Font.Weight = isCurrent ? .bold : .medium
                         Text(line)
-                            .font(.system(size: min(lyricSize * 0.65, 14), weight: isCurrent ? .bold : .medium, design: .serif))
-                            .foregroundStyle(isCurrent ? Color(red: 0.15, green: 0.13, blue: 0.12) : Color(red: 0.15, green: 0.13, blue: 0.12).opacity(0.35))
+                            .font(textStyle.font.font(size: size, weight: weight) ?? .system(size: size, weight: weight, design: .serif))
+                            .foregroundStyle(isCurrent ? ink : ink.opacity(0.35))
                     }
                     Text("— \(track.artist)")
                         .font(.system(size: 11, weight: .semibold, design: .serif))
@@ -565,9 +618,12 @@ public struct LyricCardView: View {
                             Text(isCurrent && activeLineIndex != nil ? "►" : String(format: "%02d", index + 1))
                                 .font(.system(size: 8, weight: .bold, design: .monospaced))
                                 .foregroundStyle(isCurrent && activeLineIndex != nil ? .red : Color.black.opacity(0.45))
+                            let ink = textStyle.color ?? .black
+                            let size = min(lyricSize, 13)
+                            let weight: Font.Weight = isCurrent ? .bold : .regular
                             Text(line)
-                                .font(.system(size: min(lyricSize, 13), weight: isCurrent ? .bold : .regular, design: .monospaced))
-                                .foregroundStyle(isCurrent ? .black : Color.black.opacity(0.35))
+                                .font(textStyle.font.font(size: size, weight: weight) ?? .system(size: size, weight: weight, design: .monospaced))
+                                .foregroundStyle(isCurrent ? ink : ink.opacity(0.35))
                         }
                     }
                 }
@@ -702,5 +758,24 @@ struct ReceiptPerforation: Shape {
             }
         }
         return path
+    }
+}
+
+/// Applies the user's chosen text effect. `strength` lets the active line glow fully while others stay faint.
+private struct LyricEffectModifier: ViewModifier {
+    let effect: LyricEffect
+    let glow: Color
+    let strength: Double
+
+    func body(content: Content) -> some View {
+        switch effect {
+        case .none:
+            content
+        case .glow:
+            content.shadow(color: glow.opacity(0.75 * strength), radius: 12)
+        case .shadow:
+            // readability on busy photo/video backgrounds
+            content.shadow(color: .black.opacity(0.55), radius: 3, y: 2)
+        }
     }
 }

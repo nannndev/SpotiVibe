@@ -22,6 +22,10 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SpotiVibe records audio with video clips you capture as lyric video backgrounds.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>SpotiVibe uses the camera to capture custom cover art and backgrounds for your lyric cards.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>SpotiVibe needs permission to save high-resolution lyric cards and videos to your Camera Roll.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -35,9 +39,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>io.github.spotivibe</string>
+			<string>com.naneps.spotivibe</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>opennotchi</string>
 				<string>spotivibe</string>
 			</array>
 		</dict>

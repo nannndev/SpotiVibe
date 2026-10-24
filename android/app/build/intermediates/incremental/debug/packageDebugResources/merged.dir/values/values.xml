@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent_orange">#FFFFA433</color>
+    <color name="accent_pink">#FFFA2E70</color>
+    <color name="black">#FF121212</color>
+    <color name="spotify_green">#FF1DB954</color>
+    <color name="surface_dark">#FF1A1A1A</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">SpotiVibe</string>
+    <style name="Theme.SpotiVibe" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#121212</item>
+        <item name="android:navigationBarColor">#121212</item>
+        <item name="android:windowBackground">#121212</item>
+    </style>
+</resources>

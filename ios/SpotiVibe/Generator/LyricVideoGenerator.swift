@@ -26,7 +26,7 @@ public enum LyricVideoGenerator {
         fps: Int = 30,
         size: CGSize,
         scale: CGFloat = 3.0,
-        frameBuilder: @escaping (Double) -> AnyView,
+        frameBuilder: @escaping (Double) async -> AnyView,
         onProgress: @escaping (Double) -> Void
     ) async throws -> URL {
         let totalFrames = max(1, Int(duration * Double(fps)))
@@ -83,7 +83,7 @@ public enum LyricVideoGenerator {
             let currentTime = Double(frameIndex) / Double(fps)
             let presentationTime = CMTime(value: Int64(frameIndex), timescale: Int32(fps))
 
-            let view = frameBuilder(currentTime)
+            let view = await frameBuilder(currentTime)
                 .frame(width: size.width, height: size.height)
 
             let renderer = ImageRenderer(content: view)

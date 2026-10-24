@@ -1,6 +1,6 @@
 name: SpotiVibe
 options:
-  bundleIdPrefix: io.github.spotivibe
+  bundleIdPrefix: com.naneps.spotivibe
   deploymentTarget:
     iOS: "16.0"
 settings:
@@ -17,9 +17,30 @@ targets:
       - path: SpotiVibe
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.github.spotivibe
+        PRODUCT_BUNDLE_IDENTIFIER: com.naneps.spotivibe
+        DEVELOPMENT_TEAM: 6HF6B53G32
+        CODE_SIGN_STYLE: Automatic
         INFOPLIST_FILE: SpotiVibe/Resources/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        CODE_SIGN_IDENTITY: ""
-        CODE_SIGNING_REQUIRED: "NO"
-        CODE_SIGNING_ALLOWED: "NO"
+    entitlements:
+      path: SpotiVibe/Resources/SpotiVibe.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.naneps.spotivibe]
+    dependencies:
+      - target: SpotiVibeShare
+  SpotiVibeShare:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: SpotiVibeShare
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.naneps.spotivibe.share
+        DEVELOPMENT_TEAM: 6HF6B53G32
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: SpotiVibeShare/Info.plist
+    entitlements:
+      path: SpotiVibeShare/SpotiVibeShare.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.naneps.spotivibe]

@@ -36,7 +36,7 @@ public struct Track: Identifiable, Equatable {
         title: "Shape of My Heart",
         artist: "Backstreet Boys",
         album: "Black & Blue",
-        artworkURL: URL(string: "https://i.scdn.co/image/ab67616d0000b2734a17961b2fc862140bb8e9ec"),
+        artworkURL: URL(string: "https://i.scdn.co/image/ab67616d0000b273cf871e6326e334bfa92cff20"),
         duration: 230,
         isPlaying: true,
         progress: 45
@@ -47,7 +47,7 @@ public struct Track: Identifiable, Equatable {
         title: "golden hour",
         artist: "JVKE",
         album: "this is what ____ feels like (Vol. 1-4)",
-        artworkURL: URL(string: "https://i.scdn.co/image/ab67616d0000b2739343ee06575cb27845ba0eb1"),
+        artworkURL: URL(string: "https://i.scdn.co/image/ab67616d0000b273c2504e80ba2f258697ab2954"),
         duration: 209,
         isPlaying: true,
         progress: 68
