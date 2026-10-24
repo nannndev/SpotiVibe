@@ -895,10 +895,20 @@ public struct LyricsShareView: View {
                     }
                 )
 
+                var final = url
+                var savedMessage = "Video saved to Camera Roll!"
+                if let snapBgVideo {
+                    do {
+                        final = try await snapBgVideo.mixAudio(into: url)
+                    } catch {
+                        savedMessage = "Video saved without clip sound"
+                    }
+                }
+
                 self.isRendering = false
-                try? await DirectShareService.shared.saveToPhotos(videoURL: url)
-                self.showToast("Video saved to Camera Roll!")
-                DirectShareService.shared.presentShareSheet(items: [url])
+                try? await DirectShareService.shared.saveToPhotos(videoURL: final)
+                self.showToast(savedMessage)
+                DirectShareService.shared.presentShareSheet(items: [final])
             } catch {
                 self.isRendering = false
                 self.showToast("Export failed: \(error.localizedDescription)")

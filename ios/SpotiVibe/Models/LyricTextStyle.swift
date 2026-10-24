@@ -170,6 +170,13 @@ enum LyricPlayheadSelfCheck {
         assert(back?.rawValue == style.rawValue, "text style round-trip")
         assert(LyricTextStyle(rawValue: LyricTextStyle().rawValue)?.rawValue == LyricTextStyle().rawValue, "default round-trip")
         assert(LyricTextStyle(rawValue: "garbage") == nil, "rejects bad input")
+
+        // 4s trim looped under a 10s video: 4 + 4 + 2
+        let loop = VideoSource.loopSegments(trimStart: 2, trimEnd: 6, audioEnd: 20, total: 10)
+        assert(loop.map(\.at) == [0, 4, 8] && loop.map(\.length) == [4, 4, 2] && loop.allSatisfy { $0.source == 2 }, "audio loop")
+        // trim past the end of the audio track is clamped
+        let clamped = VideoSource.loopSegments(trimStart: 0, trimEnd: 30, audioEnd: 5, total: 12)
+        assert(clamped.map(\.length) == [5, 5, 2], "audio clamp")
     }
 }
 #endif

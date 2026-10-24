@@ -97,6 +97,55 @@ final class VideoSource {
         return trimStart + time.truncatingRemainder(dividingBy: span)
     }
 
+    /// Puts this clip's sound (trimmed range, looped) under a rendered silent video.
+    /// Returns `video` unchanged when the clip has no audio track.
+    func mixAudio(into video: URL) async throws -> URL {
+        guard let audio = try await exporter.asset.loadTracks(withMediaType: .audio).first else { return video }
+        let rendered = AVURLAsset(url: video)
+        guard let picture = try await rendered.loadTracks(withMediaType: .video).first else { return video }
+        let total = try await rendered.load(.duration)
+        let audioEnd = try await audio.load(.timeRange).end.seconds
+
+        let comp = AVMutableComposition()
+        guard let v = comp.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
+              let a = comp.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
+        else { return video }
+        try v.insertTimeRange(CMTimeRange(start: .zero, duration: total), of: picture, at: .zero)
+
+        for seg in Self.loopSegments(trimStart: trimStart, trimEnd: trimEnd, audioEnd: audioEnd, total: total.seconds) {
+            try a.insertTimeRange(CMTimeRange(start: CMTime(seconds: seg.source, preferredTimescale: 600),
+                                              duration: CMTime(seconds: seg.length, preferredTimescale: 600)),
+                                  of: audio, at: CMTime(seconds: seg.at, preferredTimescale: 600))
+        }
+
+        guard let session = AVAssetExportSession(asset: comp, presetName: AVAssetExportPresetPassthrough) else {
+            throw URLError(.cannotCreateFile)
+        }
+        let out = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".mp4")
+        session.outputURL = out
+        session.outputFileType = .mp4
+        await session.export()
+        guard session.status == .completed else { throw session.error ?? URLError(.cannotCreateFile) }
+        try? FileManager.default.removeItem(at: video)
+        return out
+    }
+
+    /// Back-to-back copies of the trimmed range that fill `total` seconds; the last copy is cut short.
+    nonisolated static func loopSegments(trimStart: Double, trimEnd: Double, audioEnd: Double, total: Double)
+        -> [(source: Double, at: Double, length: Double)] {
+        // audio can be a hair shorter than the picture track; never read past it
+        let start = min(trimStart, max(audioEnd - 0.1, 0))
+        let span = max(min(trimEnd, audioEnd) - start, 0.1)
+        var segments: [(source: Double, at: Double, length: Double)] = []
+        var at = 0.0
+        while at < total - 0.001 {
+            let length = min(span, total - at)
+            segments.append((start, at, length))
+            at += length
+        }
+        return segments
+    }
+
     /// Evenly spaced thumbnails for the trimmer's filmstrip.
     func filmstrip(count: Int) async -> [UIImage] {
         let gen = AVAssetImageGenerator(asset: exporter.asset)
