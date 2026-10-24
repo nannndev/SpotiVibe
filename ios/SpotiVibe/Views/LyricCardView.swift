@@ -212,7 +212,35 @@ public struct LyricCardView: View {
         let font = textStyle.font.font(size: size, weight: weight) ?? .system(size: size, weight: weight, design: design)
         let base = textStyle.color ?? color
 
-        if let active = activeLineIndex {
+        if let active = activeLineIndex, textStyle.animation != .karaoke {
+            let isActive = index == active
+            let isPast = index < active
+            let t = min(lineProgress * 5, 1)
+            let pop = isActive ? 1 - pow(1 - t, 3) : 0
+
+            Group {
+                switch textStyle.animation {
+                case .fade:
+                    Text(text).foregroundStyle(base.opacity(isActive ? 0.25 + 0.75 * pop : (isPast ? 0.45 : 0.2)))
+                case .typewriter:
+                    let shown = isActive ? Self.revealCount(of: text.count, progress: lineProgress) : (isPast ? text.count : 0)
+                    // hidden tail keeps its width so the line doesn't reflow while typing
+                    Text(String(text.prefix(shown))).foregroundColor(base.opacity(isPast ? 0.5 : 1))
+                        + Text(String(text.dropFirst(shown))).foregroundColor(base.opacity(isActive ? 0 : 0.2))
+                default: // .words
+                    let words = text.split(separator: " ", omittingEmptySubsequences: false).map(String.init)
+                    let shown = isActive ? Self.revealCount(of: words.count, progress: lineProgress) : (isPast ? words.count : 0)
+                    words.enumerated().reduce(Text("")) { acc, item in
+                        let piece = Text((item.offset == 0 ? "" : " ") + item.element)
+                            .foregroundColor(base.opacity(item.offset < shown ? (isPast ? 0.5 : 1) : (isActive ? 0.15 : 0.2)))
+                        return acc + piece
+                    }
+                }
+            }
+            .font(font)
+            .offset(y: isActive && textStyle.animation == .fade ? 8 * (1 - pop) : 0)
+            .modifier(LyricEffectModifier(effect: textStyle.effect, glow: glow, strength: isActive ? pop : 0.4))
+        } else if let active = activeLineIndex {
             let isActive = index == active
             let isPast = index < active
             let t = min(lineProgress * 5, 1)
@@ -244,6 +272,11 @@ public struct LyricCardView: View {
                 .foregroundStyle(base)
                 .modifier(LyricEffectModifier(effect: textStyle.effect, glow: glow, strength: 1))
         }
+    }
+
+    /// How many characters/words are visible `progress` (0…1) into a line; fully shown by 80%.
+    nonisolated static func revealCount(of total: Int, progress: Double) -> Int {
+        min(total, Int((Double(total) * min(progress / 0.8, 1)).rounded()))
     }
 
     // MARK: - Layout: Player
@@ -675,7 +708,11 @@ public struct LyricCardView: View {
         }
     }
 
-    private var footer: some View {
+    @ViewBuilder private var footer: some View {
+        if textStyle.showWatermark { watermark } else { Color.clear.frame(height: 12) }
+    }
+
+    private var watermark: some View {
         HStack(spacing: 5) {
             Image(systemName: "quote.bubble.fill").font(.system(size: 9, weight: .bold))
             Text("SpotiVibe").font(.system(size: 10.5, weight: .semibold, design: .rounded))

@@ -23,6 +23,7 @@
 		BE40EDBC65304AFBF1A8E978 /* DirectShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9DCF047E2182B344CBDC03 /* DirectShareService.swift */; };
 		D4B1AB38EB8D6414CE43FB75 /* CardAspectRatio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669DFF2EBD7B07196F8975EF /* CardAspectRatio.swift */; };
 		E59C72E193E0B3FB17B4B00D /* VideoSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A35FB8A280DCDACE9B26201 /* VideoSource.swift */; };
+		F263B6CD6570429A2C3F744B /* ArtworkColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD381AD9DAF807165DB0CCF /* ArtworkColor.swift */; };
 		FB226A28B9245ADB8E2A9404 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17612C964F0C20C490BB06F /* Track.swift */; };
 /* End PBXBuildFile section */
 
@@ -54,6 +55,7 @@
 		019BBA5E19491AD2FAF75089 /* SpotifyPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyPlayerService.swift; sourceTree = "<group>"; };
 		02C9C142F180D29A1BACAB4C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0A35FB8A280DCDACE9B26201 /* VideoSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSource.swift; sourceTree = "<group>"; };
+		0BD381AD9DAF807165DB0CCF /* ArtworkColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkColor.swift; sourceTree = "<group>"; };
 		0CFD634AB556AFF4C1C7E943 /* SpotiVibe.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SpotiVibe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A809F2A65F935F4C93B4A4E /* SpotiVibeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotiVibeApp.swift; sourceTree = "<group>"; };
 		4EBEE15CE664C3792DA43FFD /* LyricsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsService.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 		50F5D0067F20EC88E0EF2A6C /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				0BD381AD9DAF807165DB0CCF /* ArtworkColor.swift */,
 				4F9DCF047E2182B344CBDC03 /* DirectShareService.swift */,
 				4EBEE15CE664C3792DA43FFD /* LyricsService.swift */,
 				59209538B6BC5BE44BBF75BE /* SpotifyAuthService.swift */,
@@ -279,6 +282,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F263B6CD6570429A2C3F744B /* ArtworkColor.swift in Sources */,
 				D4B1AB38EB8D6414CE43FB75 /* CardAspectRatio.swift in Sources */,
 				BE40EDBC65304AFBF1A8E978 /* DirectShareService.swift in Sources */,
 				119C88D379AA0777A0278CCA /* LyricCardStyle.swift in Sources */,

@@ -31,6 +31,11 @@ public struct LyricsShareView: View {
     @State private var backdropFrame: UIImage? = nil
     @State private var deckExpanded = true
     @AppStorage("studio.text") private var textStyle = LyricTextStyle()
+    @AppStorage("studio.autoColor") private var autoColor = true
+    @State private var artworkAccent: Color? = nil
+
+    private static let defaultAccent = Color(red: 0.92, green: 0.28, blue: 0.60)
+    private var accent: Color { autoColor ? (artworkAccent ?? Self.defaultAccent) : Self.defaultAccent }
     @State private var deckTab: DeckTab = .style
 
     enum DeckTab: String, CaseIterable { case style = "Style", text = "Text" }
@@ -194,6 +199,15 @@ public struct LyricsShareView: View {
             }
             .task {
                 await lyricsService.fetchLyrics(for: currentTrack)
+            }
+            .task(id: currentTrack.artworkURL) {
+                artworkAccent = nil
+                if let url = currentTrack.artworkURL { artworkAccent = await ArtworkColor.accent(from: url) }
+            }
+            .onChange(of: customCover) { cover in
+                // a custom cover drives the tint too; clearing it goes back to the album art
+                if let cover { artworkAccent = ArtworkColor.accent(of: cover) }
+                else if let url = currentTrack.artworkURL { Task { artworkAccent = await ArtworkColor.accent(from: url) } }
             }
             .onOpenURL { url in
                 importShared(url)
@@ -378,7 +392,8 @@ public struct LyricsShareView: View {
                         style: style,
                         backdropImage: mode == .video ? (backdropFrame ?? customBackdrop) : customBackdrop,
                         backdropBlur: backdropBlur,
-                        customArtwork: mode == .video ? (coverFrame ?? customCover) : customCover
+                        customArtwork: mode == .video ? (coverFrame ?? customCover) : customCover,
+                        accentColor: accent
                     )
                     .scaleEffect(scale)
                     .frame(width: aspectRatio.size.width * scale, height: aspectRatio.size.height * scale)
@@ -577,6 +592,37 @@ public struct LyricsShareView: View {
                                 .chip(selected: textStyle.font == f)
                         }
                     }
+                }
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    Text("Video")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Theme.textSecondary)
+                    ForEach(LyricAnimation.allCases) { a in
+                        Button {
+                            textStyle.animation = a
+                        } label: {
+                            Text(a.name).chip(selected: textStyle.animation == a)
+                        }
+                    }
+                }
+            }
+
+            // chips, not Toggles: two switches side by side truncate their labels on narrow phones
+            HStack(spacing: 8) {
+                Button {
+                    autoColor.toggle()
+                } label: {
+                    Label("Cover color", systemImage: "eyedropper")
+                        .chip(selected: autoColor)
+                }
+                Button {
+                    textStyle.showWatermark.toggle()
+                } label: {
+                    Label("Watermark", systemImage: "quote.bubble")
+                        .chip(selected: textStyle.showWatermark)
                 }
             }
 
@@ -799,7 +845,8 @@ public struct LyricsShareView: View {
             style: style,
             backdropImage: customBackdrop,
             backdropBlur: backdropBlur,
-            customArtwork: customCover
+            customArtwork: customCover,
+            accentColor: accent
         )
         .frame(width: size.width, height: size.height)
 
@@ -853,6 +900,7 @@ public struct LyricsShareView: View {
         let startSongTime = songStartTime
         let snapSelection = selection
         let snapTextStyle = textStyle
+        let snapAccent = accent
 
         Task { @MainActor in
             do {
@@ -886,7 +934,8 @@ public struct LyricsShareView: View {
                                 style: snapStyle,
                                 backdropImage: bgFrame,
                                 backdropBlur: snapBlur,
-                                customArtwork: coverFrame
+                                customArtwork: coverFrame,
+                                accentColor: snapAccent
                             )
                         )
                     },

@@ -6,24 +6,47 @@ public struct LyricTextStyle: Equatable {
     public var font: LyricFont = .auto
     public var color: Color? = nil
     public var effect: LyricEffect = .none
+    public var animation: LyricAnimation = .karaoke
+    public var showWatermark = true
 
     public init() {}
 }
 
-/// "align|font|#RRGGBBAA|effect" so it fits in @AppStorage; unknown parts fall back to defaults.
+/// How the active line enters in video mode.
+public enum LyricAnimation: String, CaseIterable, Identifiable {
+    case karaoke, words, typewriter, fade
+
+    public var id: String { rawValue }
+    public var name: String {
+        switch self {
+        case .karaoke: return "Karaoke"
+        case .words: return "Word by word"
+        case .typewriter: return "Typewriter"
+        case .fade: return "Fade"
+        }
+    }
+}
+
+/// "align|font|#RRGGBBAA|effect|animation|watermark" so it fits in @AppStorage.
+/// Unknown parts fall back to defaults; 4-part strings from older builds still load.
 extension LyricTextStyle: RawRepresentable {
     public init?(rawValue: String) {
         let p = rawValue.split(separator: "|", omittingEmptySubsequences: false).map(String.init)
-        guard p.count == 4 else { return nil }
+        guard p.count == 4 || p.count == 6 else { return nil }
         alignment = ["leading": .leading, "center": .center, "trailing": .trailing][p[0]]
         font = LyricFont(rawValue: p[1]) ?? .auto
         color = Self.color(hex: p[2])
         effect = LyricEffect(rawValue: p[3]) ?? .none
+        if p.count == 6 {
+            animation = LyricAnimation(rawValue: p[4]) ?? .karaoke
+            showWatermark = p[5] != "0"
+        }
     }
 
     public var rawValue: String {
         let align = alignment.map { $0 == .leading ? "leading" : ($0 == .center ? "center" : "trailing") } ?? ""
-        return [align, font.rawValue, color.map(Self.hex) ?? "", effect.rawValue].joined(separator: "|")
+        return [align, font.rawValue, color.map(Self.hex) ?? "", effect.rawValue,
+                animation.rawValue, showWatermark ? "1" : "0"].joined(separator: "|")
     }
 
     private static func hex(_ c: Color) -> String {
@@ -166,10 +189,19 @@ enum LyricPlayheadSelfCheck {
         style.font = .didot
         style.color = Color(.sRGB, red: 1, green: 0.2, blue: 0.4, opacity: 1)
         style.effect = .shadow
+        style.animation = .typewriter
+        style.showWatermark = false
         let back = LyricTextStyle(rawValue: style.rawValue)
         assert(back?.rawValue == style.rawValue, "text style round-trip")
         assert(LyricTextStyle(rawValue: LyricTextStyle().rawValue)?.rawValue == LyricTextStyle().rawValue, "default round-trip")
         assert(LyricTextStyle(rawValue: "garbage") == nil, "rejects bad input")
+        let legacy = LyricTextStyle(rawValue: "center|serif||glow")
+        assert(legacy?.effect == .glow && legacy?.animation == .karaoke && legacy?.showWatermark == true, "loads old 4-part string")
+
+        // typewriter/words reveal counts
+        assert(LyricCardView.revealCount(of: 10, progress: 0) == 0, "reveal start")
+        assert(LyricCardView.revealCount(of: 10, progress: 0.4) == 5, "reveal mid (done at 80%)")
+        assert(LyricCardView.revealCount(of: 10, progress: 1) == 10, "reveal end")
 
         // 4s trim looped under a 10s video: 4 + 4 + 2
         let loop = VideoSource.loopSegments(trimStart: 2, trimEnd: 6, audioEnd: 20, total: 10)
