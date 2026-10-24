@@ -242,7 +242,11 @@ public struct LyricsShareView: View {
                 importShared(url)
             }
             .onReceive(player.$lastSyncTime) { _ in publishWidget() }
-            .onChange(of: lyricsService.lyrics) { _ in publishWidget() }
+            .onChange(of: lyricsService.lyrics) { _ in
+                publishWidget()
+                fitDuration()
+            }
+            .onChange(of: selection) { _ in fitDuration() }
             .onChange(of: scenePhase) { phase in
                 // catch up immediately when returning from the Spotify app
                 if phase == .active { player.poll() }
@@ -739,6 +743,16 @@ public struct LyricsShareView: View {
             // Context controls (Photo / Video specifics)
             HStack(spacing: 8) {
                 if mode == .video {
+                    // default: exactly as long as the chosen lines; the fixed lengths cut or pad it
+                    if let fitted = LyricPlayhead.videoLength(selection: selection, times: times, texts: lines) {
+                        Button {
+                            fitDuration()
+                        } label: {
+                            Text("Fit \(Int(fitted.rounded()))s")
+                                .chip(selected: abs(duration - fitted) < 0.01)
+                        }
+                        .accessibilityLabel("Fit video to the selected lines, \(Int(fitted.rounded())) seconds")
+                    }
                     ForEach([10.0, 15.0, 30.0], id: \.self) { d in
                         Button {
                             duration = d
@@ -1143,11 +1157,13 @@ public struct LyricsShareView: View {
         let stretched = min(index, selection.lowerBound)...max(index, selection.upperBound)
         selection = stretched.count <= 8 ? stretched : index...index
 
-        // Auto update duration
-        if selection.lowerBound < times.count, selection.upperBound < times.count,
-           let start = times[selection.lowerBound], let end = times[selection.upperBound] {
-            duration = max(5.0, min(30.0, (end - start) + 3.5))
-        }
+    }
+
+    /// Fit the video to the chosen lines; runs when the lines or the song's lyrics change.
+    private func fitDuration() {
+        guard let fitted = LyricPlayhead.videoLength(selection: selection, times: times, texts: lines) else { return }
+        duration = fitted
+        if previewElapsed > fitted { previewElapsed = 0 }
     }
 
     // MARK: - Spotify Settings Sheet

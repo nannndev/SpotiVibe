@@ -160,6 +160,17 @@ public struct LyricPlayhead: Equatable {
         min(max(Double(text.count) * 0.09, 1.2), 6)
     }
 
+    /// Video length that covers the selected lines, from the first line to the end of the last one,
+    /// so long melody breaks don't push later lines past the end. Capped at 60s (Stories limit).
+    static func videoLength(selection: ClosedRange<Int>, times: [Double?], texts: [String]) -> Double? {
+        guard selection.upperBound < times.count, let start = times[selection.lowerBound],
+              let last = times[selection.upperBound] else { return nil }
+        let lastText = selection.upperBound < texts.count ? texts[selection.upperBound] : ""
+        let following = selection.upperBound + 1 < times.count ? times[selection.upperBound + 1] : nil
+        let end = min(last + singingTime(for: lastText) + 1.5, following ?? .infinity)
+        return min(max(end - start, 5), 60)
+    }
+
     /// `times` are song timestamps for every lyric line; `selection` indexes into them.
     /// `texts` (same indexing as `times`) sets how long each line takes to sing.
     public static func at(songTime: Double, elapsed: Double, duration: Double,
@@ -209,6 +220,15 @@ enum LyricPlayheadSelfCheck {
         let gapTimes: [Double?] = [10, 40]
         let mid = LyricPlayhead.at(songTime: 25, elapsed: 15, duration: 30, selection: 0...1, times: gapTimes, texts: ["sing this", "next"])
         assert(mid.index == nil && mid.lastStarted == 0, "melody break: no line lit")
+        // real case from a phone: 21s melody break after line 1; the video must reach line 3
+        let pagi: [Double?] = [2.48, 23.86, 33.59, 52.13]
+        let pagiText = ["Bagaimana tidurmu sudah cukupkah itu", "Nyenyak kah kau di malam tadi?",
+                        "Selamat pagi apa kau siap untuk jalani hari di Jogja ini?", "next"]
+        let len = LyricPlayhead.videoLength(selection: 0...2, times: pagi, texts: pagiText) ?? 0
+        assert(len > 33.59 - 2.48 + 3 && len <= 60, "video covers all selected lines")
+        let third = LyricPlayhead.at(songTime: 34, elapsed: 34 - 2.48, duration: len, selection: 0...2, times: pagi, texts: pagiText)
+        assert(third.index == 2, "third line lights up inside the fitted video")
+
         let held = LyricPlayhead.at(songTime: 11.5, elapsed: 1.5, duration: 30, selection: 0...1, times: gapTimes, texts: ["sing this", "next"])
         assert(held.index == 0, "line stays lit while sung")
         let b = LyricPlayhead.at(songTime: 0, elapsed: 7.5, duration: 10, selection: 0...1, times: [nil, nil])
