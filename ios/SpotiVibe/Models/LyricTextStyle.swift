@@ -10,6 +10,36 @@ public struct LyricTextStyle: Equatable {
     public init() {}
 }
 
+/// "align|font|#RRGGBBAA|effect" so it fits in @AppStorage; unknown parts fall back to defaults.
+extension LyricTextStyle: RawRepresentable {
+    public init?(rawValue: String) {
+        let p = rawValue.split(separator: "|", omittingEmptySubsequences: false).map(String.init)
+        guard p.count == 4 else { return nil }
+        alignment = ["leading": .leading, "center": .center, "trailing": .trailing][p[0]]
+        font = LyricFont(rawValue: p[1]) ?? .auto
+        color = Self.color(hex: p[2])
+        effect = LyricEffect(rawValue: p[3]) ?? .none
+    }
+
+    public var rawValue: String {
+        let align = alignment.map { $0 == .leading ? "leading" : ($0 == .center ? "center" : "trailing") } ?? ""
+        return [align, font.rawValue, color.map(Self.hex) ?? "", effect.rawValue].joined(separator: "|")
+    }
+
+    private static func hex(_ c: Color) -> String {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        UIColor(c).getRed(&r, green: &g, blue: &b, alpha: &a)
+        let clamp = { (v: CGFloat) in Int((min(max(v, 0), 1) * 255).rounded()) }
+        return String(format: "#%02X%02X%02X%02X", clamp(r), clamp(g), clamp(b), clamp(a))
+    }
+
+    private static func color(hex: String) -> Color? {
+        guard hex.hasPrefix("#"), hex.count == 9, let v = UInt32(hex.dropFirst(), radix: 16) else { return nil }
+        return Color(.sRGB, red: Double(v >> 24 & 0xFF) / 255, green: Double(v >> 16 & 0xFF) / 255,
+                     blue: Double(v >> 8 & 0xFF) / 255, opacity: Double(v & 0xFF) / 255)
+    }
+}
+
 /// Optional text effect; off by default so lines only animate.
 public enum LyricEffect: String, CaseIterable, Identifiable {
     case none, glow, shadow
@@ -130,6 +160,16 @@ enum LyricPlayheadSelfCheck {
         assert(a.index == 1 && abs(a.progress - 0.5) < 0.001, "synced midpoint")
         let b = LyricPlayhead.at(songTime: 0, elapsed: 7.5, duration: 10, selection: 0...1, times: [nil, nil])
         assert(b.index == 1 && abs(b.progress - 0.5) < 0.001, "unsynced split")
+
+        var style = LyricTextStyle()
+        style.alignment = .center
+        style.font = .didot
+        style.color = Color(.sRGB, red: 1, green: 0.2, blue: 0.4, opacity: 1)
+        style.effect = .shadow
+        let back = LyricTextStyle(rawValue: style.rawValue)
+        assert(back?.rawValue == style.rawValue, "text style round-trip")
+        assert(LyricTextStyle(rawValue: LyricTextStyle().rawValue)?.rawValue == LyricTextStyle().rawValue, "default round-trip")
+        assert(LyricTextStyle(rawValue: "garbage") == nil, "rejects bad input")
     }
 }
 #endif

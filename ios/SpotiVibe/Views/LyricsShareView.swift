@@ -10,15 +10,16 @@ public struct LyricsShareView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     // Studio Settings
-    @State private var mode: ShareMode = .photo
-    @State private var style: LyricCardStyle = .aura
-    @State private var aspectRatio: CardAspectRatio = .story
+    // remembered between launches
+    @AppStorage("studio.mode") private var mode: ShareMode = .photo
+    @AppStorage("studio.style") private var style: LyricCardStyle = .aura
+    @AppStorage("studio.ratio") private var aspectRatio: CardAspectRatio = .story
     @State private var selection: ClosedRange<Int> = 0...2
 
     // Media Customization
     @State private var customBackdrop: UIImage? = nil
     @State private var customCover: UIImage? = nil
-    @State private var backdropBlur: Double = 14
+    @AppStorage("studio.blur") private var backdropBlur: Double = 14
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var photoTarget: PhotoTarget = .backdrop
     @State private var showPhotoPicker = false
@@ -29,7 +30,7 @@ public struct LyricsShareView: View {
     @State private var coverFrame: UIImage? = nil
     @State private var backdropFrame: UIImage? = nil
     @State private var deckExpanded = true
-    @State private var textStyle = LyricTextStyle()
+    @AppStorage("studio.text") private var textStyle = LyricTextStyle()
     @State private var deckTab: DeckTab = .style
 
     enum DeckTab: String, CaseIterable { case style = "Style", text = "Text" }
@@ -38,7 +39,7 @@ public struct LyricsShareView: View {
     // Video Playback & Timeline
     @State private var isPlaying = true
     @State private var previewElapsed: Double = 0
-    @State private var duration: Double = 15
+    @AppStorage("studio.duration") private var duration: Double = 15
     @State private var isRendering = false
     @State private var renderProgress: Double = 0
 
