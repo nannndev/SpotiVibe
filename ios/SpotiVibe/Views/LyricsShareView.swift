@@ -32,6 +32,8 @@ public struct LyricsShareView: View {
     @State private var deckExpanded = true
     @AppStorage("studio.text") private var textStyle = LyricTextStyle()
     @AppStorage("studio.autoColor") private var autoColor = true
+    /// Background clip sound in the export; off by default since the song is added afterwards.
+    @AppStorage("studio.clipSound") private var keepClipSound = false
     @AppStorage("studio.highlightDefault") private var highlightDefaultApplied = false
     @State private var artworkAccent: Color? = nil
     /// Album art as a real image: ImageRenderer snapshots immediately, so an AsyncImage would export blank.
@@ -825,6 +827,15 @@ public struct LyricsShareView: View {
                 if let backdropVideo {
                     ClipTrimmer(title: "Background clip", source: backdropVideo) { previewElapsed = 0 }
                         .id(ObjectIdentifier(backdropVideo))
+                    Button {
+                        keepClipSound.toggle()
+                    } label: {
+                        Label(keepClipSound ? "Clip sound on" : "Clip sound off",
+                              systemImage: keepClipSound ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                            .chip(selected: keepClipSound)
+                    }
+                    .accessibilityLabel("Include the background clip's sound in the video")
+                    .accessibilityValue(keepClipSound ? "On" : "Off")
                 }
                 if let coverVideo {
                     ClipTrimmer(title: "Cover clip", source: coverVideo) { previewElapsed = 0 }
@@ -964,6 +975,7 @@ public struct LyricsShareView: View {
         let snapBlur = backdropBlur
         let snapCover = coverForRender
         let snapBgVideo = backdropVideo
+        let snapClipSound = keepClipSound
         let snapCoverVideo = coverVideo
         let startSongTime = songStartTime
         let snapSelection = selection
@@ -1017,7 +1029,7 @@ public struct LyricsShareView: View {
 
                 var final = url
                 var savedMessage = "Video saved to Camera Roll!"
-                if let snapBgVideo {
+                if snapClipSound, let snapBgVideo {
                     do {
                         final = try await snapBgVideo.mixAudio(into: url)
                     } catch {
