@@ -87,3 +87,4 @@ SpotiVibe/
 │           └── Assets.xcassets/
 └── android/ (Planned: Jetpack Compose version)
 ```
+# SpotiVibe
