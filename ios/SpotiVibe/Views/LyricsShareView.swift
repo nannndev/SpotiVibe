@@ -105,7 +105,7 @@ public struct LyricsShareView: View {
 
     private var playhead: LyricPlayhead {
         LyricPlayhead.at(songTime: songStartTime + previewElapsed, elapsed: previewElapsed,
-                         duration: duration, selection: selection, times: times)
+                         duration: duration, selection: selection, times: times, texts: lines)
     }
 
     /// Largest scale that fits the card into the space the preview area actually has.
@@ -415,6 +415,8 @@ public struct LyricsShareView: View {
                         elapsed: previewElapsed,
                         activeLineIndex: mode == .video ? playhead.index : nil,
                         lineProgress: playhead.progress,
+                        lastStartedLine: playhead.lastStarted,
+                        isLive: mode == .video,
                         textStyle: textStyle,
                         style: style,
                         backdropImage: mode == .video ? (backdropFrame ?? customBackdrop) : customBackdrop,
@@ -936,6 +938,7 @@ public struct LyricsShareView: View {
         let snapCoverVideo = coverVideo
         let startSongTime = songStartTime
         let snapSelection = selection
+        let snapAllLines = lines
         let snapTextStyle = textStyle
         let snapAccent = accent
 
@@ -949,7 +952,7 @@ public struct LyricsShareView: View {
                     frameBuilder: { elapsed in
                         let currentSongTime = startSongTime + elapsed
                         let head = LyricPlayhead.at(songTime: currentSongTime, elapsed: elapsed, duration: totalDur,
-                                                    selection: snapSelection, times: snapTimes)
+                                                    selection: snapSelection, times: snapTimes, texts: snapAllLines)
 
                         var bgFrame = snapBg
                         if let snapBgVideo { bgFrame = await snapBgVideo.exportFrame(at: elapsed) }
@@ -967,6 +970,8 @@ public struct LyricsShareView: View {
                                 elapsed: elapsed,
                                 activeLineIndex: head.index,
                                 lineProgress: head.progress,
+                                lastStartedLine: head.lastStarted,
+                                isLive: true,
                                 textStyle: snapTextStyle,
                                 style: snapStyle,
                                 backdropImage: bgFrame,

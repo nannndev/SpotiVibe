@@ -146,12 +146,22 @@ public enum LyricFont: String, CaseIterable, Identifiable {
 
 /// Where playback is inside the selected lines: which line is being sung and how far into it.
 public struct LyricPlayhead: Equatable {
-    public var index: Int
+    /// Line being sung; nil before the first line and during a melody/instrumental gap.
+    public var index: Int?
     public var progress: Double
+    /// Index of the most recent line that has started (for dimming already-sung lines during a gap).
+    public var lastStarted: Int = -1
+
+    /// A line is "sung" for about this many seconds per character, capped, so its animation follows
+    /// the singer instead of stretching across a long melody before the next line.
+    static func singingTime(for text: String) -> Double {
+        min(max(Double(text.count) * 0.09, 1.2), 6)
+    }
 
     /// `times` are song timestamps for every lyric line; `selection` indexes into them.
+    /// `texts` (same indexing as `times`) sets how long each line takes to sing.
     public static func at(songTime: Double, elapsed: Double, duration: Double,
-                          selection: ClosedRange<Int>, times: [Double?]) -> LyricPlayhead {
+                          selection: ClosedRange<Int>, times: [Double?], texts: [String] = []) -> LyricPlayhead {
         let lines = Array(selection)
         let stamps = lines.map { $0 < times.count ? times[$0] : nil }
 
@@ -160,18 +170,27 @@ public struct LyricPlayhead: Equatable {
             let slot = duration / Double(max(lines.count, 1))
             let pos = min(max(elapsed, 0), duration * 0.999)
             let idx = min(Int(pos / max(slot, 0.001)), max(lines.count - 1, 0))
-            return LyricPlayhead(index: idx, progress: min(1, (pos - Double(idx) * slot) / max(slot, 0.001)))
+            return LyricPlayhead(index: idx, progress: min(1, (pos - Double(idx) * slot) / max(slot, 0.001)), lastStarted: idx)
         }
 
-        var idx = 0
-        for (i, t) in stamps.enumerated() { if let t, t <= songTime { idx = i } }
-        let start = stamps[idx] ?? songTime
-        // line ends where the next timed line starts (falls back to ~3.5s for the last line)
-        let next = stamps.dropFirst(idx + 1).compactMap { $0 }.first
+        var started = -1
+        for (i, t) in stamps.enumerated() { if let t, t <= songTime { started = i } }
+        guard started >= 0, let start = stamps[started] else { return LyricPlayhead(index: nil, progress: 0) }
+
+        // next timestamp after this line, including the line just past the selection
+        let next = stamps.dropFirst(started + 1).compactMap { $0 }.first
             ?? (selection.upperBound + 1 < times.count ? times[selection.upperBound + 1] : nil)
-            ?? start + 3.5
-        let progress = (songTime - start) / max(next - start, 0.001)
-        return LyricPlayhead(index: idx, progress: min(max(progress, 0), 1))
+        let lineIndex = lines[started]
+        let sung = singingTime(for: lineIndex < texts.count ? texts[lineIndex] : "")
+        // the fill takes as long as the line is sung, never longer than the gap to the next line
+        let fillTime = min(sung, (next ?? start + sung) - start)
+        // after the fill, the line stays lit briefly; then a long gap is a melody break with nothing lit
+        let holdUntil = start + max(fillTime + 1.5, min((next ?? .infinity) - start, fillTime + 1.5))
+        if let next, next - start > fillTime + 3, songTime > holdUntil {
+            return LyricPlayhead(index: nil, progress: 0, lastStarted: started)
+        }
+        let progress = (songTime - start) / max(fillTime, 0.001)
+        return LyricPlayhead(index: started, progress: min(max(progress, 0), 1), lastStarted: started)
     }
 }
 
@@ -179,8 +198,17 @@ public struct LyricPlayhead: Equatable {
 enum LyricPlayheadSelfCheck {
     static func run() {
         let times: [Double?] = [10, 12, 15, 20]
-        let a = LyricPlayhead.at(songTime: 13.5, elapsed: 3.5, duration: 10, selection: 0...2, times: times)
-        assert(a.index == 1 && abs(a.progress - 0.5) < 0.001, "synced midpoint")
+        let texts = ["short", "a line of about twenty", "x", "y"]
+        let a = LyricPlayhead.at(songTime: 13, elapsed: 3, duration: 10, selection: 0...2, times: times, texts: texts)
+        assert(a.index == 1 && abs(a.progress - 0.5) < 0.01, "synced: fill follows the 2s singing time, not the 3s gap")
+        let pre = LyricPlayhead.at(songTime: 9, elapsed: 0, duration: 10, selection: 0...2, times: times, texts: texts)
+        assert(pre.index == nil, "nothing lit before the first line")
+        // 4s line then a 30s melody break before the next line
+        let gapTimes: [Double?] = [10, 40]
+        let mid = LyricPlayhead.at(songTime: 25, elapsed: 15, duration: 30, selection: 0...1, times: gapTimes, texts: ["sing this", "next"])
+        assert(mid.index == nil && mid.lastStarted == 0, "melody break: no line lit")
+        let held = LyricPlayhead.at(songTime: 11.5, elapsed: 1.5, duration: 30, selection: 0...1, times: gapTimes, texts: ["sing this", "next"])
+        assert(held.index == 0, "line stays lit while sung")
         let b = LyricPlayhead.at(songTime: 0, elapsed: 7.5, duration: 10, selection: 0...1, times: [nil, nil])
         assert(b.index == 1 && abs(b.progress - 0.5) < 0.001, "unsynced split")
 
