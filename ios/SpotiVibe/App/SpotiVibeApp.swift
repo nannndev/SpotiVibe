@@ -5,6 +5,7 @@ struct SpotiVibeApp: App {
     init() {
         #if DEBUG
         LyricPlayheadSelfCheck.run()
+        MainActor.assumeIsolated { CardHistorySelfCheck.run() }
         #endif
         // Dark theme navigation bar & appearance setup
         let appearance = UINavigationBarAppearance()

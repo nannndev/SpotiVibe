@@ -14,6 +14,7 @@
 		3C1093A032E46C695D0777CA /* LyricCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB10CE5CB65C56BE359604 /* LyricCardView.swift */; };
 		495871A474DFAB1885B8B91D /* SpotifyAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59209538B6BC5BE44BBF75BE /* SpotifyAuthService.swift */; };
 		4B312879056D0CB38FBBDB2E /* LyricVideoGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E79CAB742ACC7420068C9AD /* LyricVideoGenerator.swift */; };
+		4C621B8C685438B4FA09779E /* CardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 903FAC06E9A95AE115CD4068 /* CardHistory.swift */; };
 		5843BE2387B06EFB23FBFA8C /* Lyrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F7B72B126FF24CEDE653E14 /* Lyrics.swift */; };
 		6CAB72FA2D0DD4CA178EFE6A /* SpotiVibeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A809F2A65F935F4C93B4A4E /* SpotiVibeApp.swift */; };
 		6F80E9F0E294A0D87E1FA41C /* SpotiVibeShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D9829154738920E20F1B82DE /* SpotiVibeShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -66,6 +67,7 @@
 		669DFF2EBD7B07196F8975EF /* CardAspectRatio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardAspectRatio.swift; sourceTree = "<group>"; };
 		7790B48CDC37D24888F8F21A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7E79CAB742ACC7420068C9AD /* LyricVideoGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricVideoGenerator.swift; sourceTree = "<group>"; };
+		903FAC06E9A95AE115CD4068 /* CardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardHistory.swift; sourceTree = "<group>"; };
 		909AB5EA5991ED9DAFAF12F5 /* SpotiVibe.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpotiVibe.entitlements; sourceTree = "<group>"; };
 		C17612C964F0C20C490BB06F /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
 		D18D4785DA396761570F1057 /* LyricCardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricCardStyle.swift; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 			isa = PBXGroup;
 			children = (
 				0BD381AD9DAF807165DB0CCF /* ArtworkColor.swift */,
+				903FAC06E9A95AE115CD4068 /* CardHistory.swift */,
 				4F9DCF047E2182B344CBDC03 /* DirectShareService.swift */,
 				4EBEE15CE664C3792DA43FFD /* LyricsService.swift */,
 				59209538B6BC5BE44BBF75BE /* SpotifyAuthService.swift */,
@@ -284,6 +287,7 @@
 			files = (
 				F263B6CD6570429A2C3F744B /* ArtworkColor.swift in Sources */,
 				D4B1AB38EB8D6414CE43FB75 /* CardAspectRatio.swift in Sources */,
+				4C621B8C685438B4FA09779E /* CardHistory.swift in Sources */,
 				BE40EDBC65304AFBF1A8E978 /* DirectShareService.swift in Sources */,
 				119C88D379AA0777A0278CCA /* LyricCardStyle.swift in Sources */,
 				3C1093A032E46C695D0777CA /* LyricCardView.swift in Sources */,

@@ -52,6 +52,9 @@ public struct LyricsShareView: View {
     @State private var showLinePickerSheet = false
     @State private var showSettingsSheet = false
     @State private var showSearchSheet = false
+    @State private var showHistory = false
+    /// Line range to restore once the reopened card's lyrics have loaded.
+    @State private var pendingSelection: ClosedRange<Int>? = nil
     @State private var toastMessage: String? = nil
 
     private let timer = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
@@ -154,6 +157,9 @@ public struct LyricsShareView: View {
                     playOnSpotify(track)
                 }
             }
+            .sheet(isPresented: $showHistory) {
+                HistorySheet { reopen($0) }
+            }
             .sheet(isPresented: $showSettingsSheet) {
                 spotifySettingsSheet
             }
@@ -218,7 +224,8 @@ public struct LyricsShareView: View {
             }
             .onChange(of: currentTrack.id) { _ in
                 // new song: old line range / custom cover belong to the previous track
-                selection = 0...2
+                selection = pendingSelection ?? 0...2
+                pendingSelection = nil
                 previewElapsed = 0
                 customCover = nil
                 coverVideo = nil
@@ -242,6 +249,16 @@ public struct LyricsShareView: View {
                 .tracking(-0.6)
                 .foregroundStyle(.white)
             Spacer()
+            Button {
+                showHistory = true
+            } label: {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 15, weight: .semibold))
+                    .frame(width: 34, height: 34)
+                    .background(Circle().stroke(Theme.outline, lineWidth: 1))
+                    .foregroundStyle(.white)
+            }
+            .accessibilityLabel("History")
             Button {
                 showSettingsSheet = true
             } label: {
@@ -857,6 +874,7 @@ public struct LyricsShareView: View {
 
     private func shareToInstagram() {
         guard let img = renderCardImage() else { return }
+        recordHistory(img)
         let success = DirectShareService.shared.shareToInstagramStories(image: img)
         if !success {
             DirectShareService.shared.copyToClipboard(image: img)
@@ -866,6 +884,7 @@ public struct LyricsShareView: View {
 
     private func saveImage() {
         guard let img = renderCardImage() else { return }
+        recordHistory(img)
         Task {
             do {
                 try await DirectShareService.shared.saveToPhotos(image: img)
@@ -878,10 +897,12 @@ public struct LyricsShareView: View {
 
     private func presentSystemShare() {
         guard let img = renderCardImage() else { return }
+        recordHistory(img)
         DirectShareService.shared.presentShareSheet(items: [img])
     }
 
     private func exportVideo() {
+        recordHistory(renderCardImage())
         isRendering = true
         renderProgress = 0
 
@@ -983,6 +1004,29 @@ public struct LyricsShareView: View {
                     showToast("Couldn't play: \(error.localizedDescription)")
                 }
             }
+        }
+    }
+
+    private func recordHistory(_ thumbnail: UIImage?) {
+        let t = currentTrack
+        CardHistory.shared.add(CardRecord(
+            trackID: t.id, title: t.title, artist: t.artist, album: t.album, artworkURL: t.artworkURL,
+            duration: t.duration, lineStart: selection.lowerBound, lineEnd: selection.upperBound,
+            style: style.rawValue, ratio: aspectRatio.rawValue, text: textStyle.rawValue
+        ), thumbnail: thumbnail)
+    }
+
+    private func reopen(_ record: CardRecord) {
+        showHistory = false
+        style = LyricCardStyle(rawValue: record.style) ?? style
+        aspectRatio = CardAspectRatio(rawValue: record.ratio) ?? aspectRatio
+        textStyle = LyricTextStyle(rawValue: record.text) ?? textStyle
+        let range = record.lineStart...record.lineEnd
+        if record.trackID == currentTrack.id {
+            selection = range
+        } else {
+            pendingSelection = range // applied by onChange(of: currentTrack.id)
+            player.pin(record.track)
         }
     }
 
@@ -1379,6 +1423,115 @@ private extension View {
             .frame(width: 50, height: 50)
             .background(Circle().fill(Theme.elevated))
             .foregroundStyle(.white)
+    }
+}
+
+// MARK: - History
+private struct HistorySheet: View {
+    let onOpen: (CardRecord) -> Void
+    @ObservedObject private var history = CardHistory.shared
+    @State private var favoritesOnly = false
+    @Environment(\.dismiss) private var dismiss
+
+    private var shown: [CardRecord] { history.records.filter { !favoritesOnly || $0.isFavorite } }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                if shown.isEmpty {
+                    VStack(spacing: 8) {
+                        Image(systemName: favoritesOnly ? "heart" : "clock")
+                            .font(.system(size: 32))
+                            .foregroundStyle(Theme.textSecondary)
+                        Text(favoritesOnly ? "No favorites yet" : "No cards yet")
+                            .font(.system(size: 17, weight: .bold))
+                        Text(favoritesOnly ? "Tap the heart on a card to keep it here."
+                                           : "Cards you share, save or export show up here.")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Theme.textSecondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.top, 80)
+                    .padding(.horizontal, 32)
+                } else {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 16) {
+                        ForEach(shown) { record in
+                            HistoryCell(record: record, thumbnail: history.thumbnailURL(for: record.id),
+                                        onOpen: { onOpen(record) },
+                                        onFavorite: { history.toggleFavorite(record) },
+                                        onDelete: { history.delete(record) })
+                        }
+                    }
+                    .padding(16)
+                }
+            }
+            .background(Theme.bg)
+            .navigationTitle("History")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") { dismiss() }
+                }
+                ToolbarItem(placement: .principal) {
+                    Picker("Show", selection: $favoritesOnly) {
+                        Text("Recent").tag(false)
+                        Text("Favorites").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 200)
+                }
+            }
+        }
+    }
+}
+
+private struct HistoryCell: View {
+    let record: CardRecord
+    let thumbnail: URL
+    let onOpen: () -> Void
+    let onFavorite: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button(action: onOpen) {
+                Group {
+                    if let image = UIImage(contentsOfFile: thumbnail.path) {
+                        Image(uiImage: image).resizable().scaledToFill()
+                    } else {
+                        Theme.elevated
+                    }
+                }
+                .frame(height: 220)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .accessibilityLabel("Open \(record.title) card")
+            .overlay(alignment: .topTrailing) {
+                Button(action: onFavorite) {
+                    Image(systemName: record.isFavorite ? "heart.fill" : "heart")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(record.isFavorite ? Theme.accent : .white)
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(.black.opacity(0.55)))
+                }
+                .padding(6)
+                .accessibilityLabel(record.isFavorite ? "Remove from favorites" : "Add to favorites")
+            }
+            .contextMenu {
+                Button(role: .destructive, action: onDelete) {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+
+            Text(record.title)
+                .font(.system(size: 14, weight: .bold))
+                .lineLimit(1)
+            Text("\(record.artist) · \(record.date.formatted(.relative(presentation: .named)))")
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+                .lineLimit(1)
+        }
     }
 }
 
