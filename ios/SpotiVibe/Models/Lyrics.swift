@@ -23,9 +23,15 @@ public struct Lyrics: Equatable {
         self.translations = translations
     }
 
+    /// Synced lines with text. LRC files mark instrumental breaks with empty lines; dropping them
+    /// here (not just from the text) keeps every line paired with its own timestamp.
+    public var sungLines: [LyricLine] {
+        synced.filter { !$0.text.trimmingCharacters(in: .whitespaces).isEmpty }
+    }
+
     public var allLines: [String] {
         if !synced.isEmpty {
-            return synced.map(\.text).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            return sungLines.map(\.text)
         }
         if let plain = plain {
             return plain.components(separatedBy: .newlines)

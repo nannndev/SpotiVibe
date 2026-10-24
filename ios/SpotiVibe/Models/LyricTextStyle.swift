@@ -203,6 +203,22 @@ enum LyricPlayheadSelfCheck {
         assert(LyricCardView.revealCount(of: 10, progress: 0.4) == 5, "reveal mid (done at 80%)")
         assert(LyricCardView.revealCount(of: 10, progress: 1) == 10, "reveal end")
 
+        // an instrumental break (empty LRC line) must not shift later lines onto earlier timestamps
+        let withBreak = Lyrics(synced: [LyricLine(time: 1, text: "one"), LyricLine(time: 5, text: ""),
+                                        LyricLine(time: 20, text: "two")])
+        assert(withBreak.allLines == ["one", "two"] && withBreak.sungLines.map(\.time) == [1, 20], "lines and times stay paired")
+
+        // widget schedule: 5s into a 12s song with lines at 0/4/9 → line 1 now, line 2 in 4s, end in 7s
+        let now = Date()
+        let song = NowPlaying(title: "", artist: "", lines: ["a", "b", "c"], times: [0, 4, 9],
+                              songStart: now.addingTimeInterval(-5), duration: 12)
+        let plan = song.schedule(from: now)
+        assert(plan.map(\.line) == [1, 2, nil], "widget lines")
+        assert(plan.map { Int($0.date.timeIntervalSince(now).rounded()) } == [0, 4, 7], "widget timing")
+        var paused = song
+        paused.songStart = nil
+        assert(paused.schedule(from: now).map(\.line) == [nil], "paused shows no lyric")
+
         // 4s trim looped under a 10s video: 4 + 4 + 2
         let loop = VideoSource.loopSegments(trimStart: 2, trimEnd: 6, audioEnd: 20, total: 10)
         assert(loop.map(\.at) == [0, 4, 8] && loop.map(\.length) == [4, 4, 2] && loop.allSatisfy { $0.source == 2 }, "audio loop")

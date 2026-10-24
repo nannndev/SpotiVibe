@@ -81,8 +81,9 @@ public struct LyricsShareView: View {
     }
 
     private var times: [Double?] {
-        if let synced = lyricsService.lyrics?.synced, !synced.isEmpty {
-            return synced.map { $0.time }
+        // same filtering as `lines`, so index i is line i's own timestamp
+        if let sung = lyricsService.lyrics?.sungLines, !sung.isEmpty {
+            return sung.map { $0.time }
         }
         return Array(repeating: nil, count: lines.count)
     }
@@ -218,6 +219,8 @@ public struct LyricsShareView: View {
             .onOpenURL { url in
                 importShared(url)
             }
+            .onReceive(player.$lastSyncTime) { _ in publishWidget() }
+            .onChange(of: lyricsService.lyrics) { _ in publishWidget() }
             .onChange(of: scenePhase) { phase in
                 // catch up immediately when returning from the Spotify app
                 if phase == .active { player.poll() }
@@ -1005,6 +1008,12 @@ public struct LyricsShareView: View {
                 }
             }
         }
+    }
+
+    private func publishWidget() {
+        let track = currentTrack
+        let lyrics = lyricsService.loadedKey == LyricsService.key(for: track) ? lyricsService.lyrics : nil
+        WidgetBridge.update(track: track, lyrics: lyrics, position: player.basePosition, syncedAt: player.lastSyncTime)
     }
 
     private func recordHistory(_ thumbnail: UIImage?) {
