@@ -33,6 +33,9 @@ public struct LyricsShareView: View {
     @AppStorage("studio.text") private var textStyle = LyricTextStyle()
     @AppStorage("studio.autoColor") private var autoColor = true
     @State private var artworkAccent: Color? = nil
+    /// Album art as a real image: ImageRenderer snapshots immediately, so an AsyncImage would export blank.
+    @State private var albumArt: UIImage? = nil
+    private var coverForRender: UIImage? { customCover ?? albumArt }
 
     private static let defaultAccent = Color(red: 0.92, green: 0.28, blue: 0.60)
     private var accent: Color { autoColor ? (artworkAccent ?? Self.defaultAccent) : Self.defaultAccent }
@@ -208,13 +211,17 @@ public struct LyricsShareView: View {
                 await lyricsService.fetchLyrics(for: currentTrack)
             }
             .task(id: currentTrack.artworkURL) {
-                artworkAccent = nil
-                if let url = currentTrack.artworkURL { artworkAccent = await ArtworkColor.accent(from: url) }
+                albumArt = nil
+                artworkAccent = customCover.flatMap(ArtworkColor.accent(of:))
+                guard let url = currentTrack.artworkURL,
+                      let (data, _) = try? await URLSession.shared.data(from: url),
+                      let image = UIImage(data: data) else { return }
+                albumArt = image
+                if customCover == nil { artworkAccent = ArtworkColor.accent(of: image) }
             }
             .onChange(of: customCover) { cover in
                 // a custom cover drives the tint too; clearing it goes back to the album art
-                if let cover { artworkAccent = ArtworkColor.accent(of: cover) }
-                else if let url = currentTrack.artworkURL { Task { artworkAccent = await ArtworkColor.accent(from: url) } }
+                artworkAccent = (cover ?? albumArt).flatMap(ArtworkColor.accent(of:))
             }
             .onOpenURL { url in
                 importShared(url)
@@ -836,14 +843,20 @@ public struct LyricsShareView: View {
                 }
                 .accessibilityLabel("Share")
             } else {
-                Button {
-                    exportVideo()
-                } label: {
-                    Label(isRendering ? "Rendering…" : "Export Video", systemImage: isRendering ? "hourglass" : "film.fill")
-                        .primaryPill()
-                        .opacity(isRendering ? 0.6 : 1)
+                VStack(spacing: 8) {
+                    // the MP4 has no song audio; this is where to start the track when adding music in an editor
+                    Label("Add the song from \(formatTime(songStartTime)) to match the lyrics", systemImage: "music.note")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Theme.textSecondary)
+                    Button {
+                        exportVideo()
+                    } label: {
+                        Label(isRendering ? "Rendering…" : "Export Video", systemImage: isRendering ? "hourglass" : "film.fill")
+                            .primaryPill()
+                            .opacity(isRendering ? 0.6 : 1)
+                    }
+                    .disabled(isRendering)
                 }
-                .disabled(isRendering)
             }
         }
     }
@@ -865,7 +878,7 @@ public struct LyricsShareView: View {
             style: style,
             backdropImage: customBackdrop,
             backdropBlur: backdropBlur,
-            customArtwork: customCover,
+            customArtwork: coverForRender,
             accentColor: accent
         )
         .frame(width: size.width, height: size.height)
@@ -918,7 +931,7 @@ public struct LyricsShareView: View {
         let snapRatio = aspectRatio
         let snapBg = customBackdrop
         let snapBlur = backdropBlur
-        let snapCover = customCover
+        let snapCover = coverForRender
         let snapBgVideo = backdropVideo
         let snapCoverVideo = coverVideo
         let startSongTime = songStartTime
@@ -980,7 +993,7 @@ public struct LyricsShareView: View {
 
                 self.isRendering = false
                 try? await DirectShareService.shared.saveToPhotos(videoURL: final)
-                self.showToast(savedMessage)
+                self.showToast("\(savedMessage) Start the song at \(self.formatTime(startSongTime)).")
                 DirectShareService.shared.presentShareSheet(items: [final])
             } catch {
                 self.isRendering = false

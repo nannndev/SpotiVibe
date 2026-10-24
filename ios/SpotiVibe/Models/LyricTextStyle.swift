@@ -208,6 +208,12 @@ enum LyricPlayheadSelfCheck {
                                         LyricLine(time: 20, text: "two")])
         assert(withBreak.allLines == ["one", "two"] && withBreak.sungLines.map(\.time) == [1, 20], "lines and times stay paired")
 
+        // lyric version closest to the Spotify length wins, even when it isn't first
+        let picks = [LyricsService.LrcRecord(syncedLyrics: "[00:01]a", plainLyrics: nil, duration: 260),
+                     LyricsService.LrcRecord(syncedLyrics: nil, plainLyrics: "a", duration: 231),
+                     LyricsService.LrcRecord(syncedLyrics: "[00:02]a", plainLyrics: nil, duration: 232)]
+        assert(LyricsService.bestMatch(picks, trackDuration: 231)?.duration == 232, "closest synced version")
+
         // widget schedule: 5s into a 12s song with lines at 0/4/9 → line 1 now, line 2 in 4s, end in 7s
         let now = Date()
         let song = NowPlaying(title: "", artist: "", lines: ["a", "b", "c"], times: [0, 4, 9],

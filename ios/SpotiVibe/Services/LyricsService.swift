@@ -54,7 +54,7 @@ public class LyricsService: ObservableObject {
 
         if let searchURL = searchComponents.url,
            let records = await requestLRCSearch(url: searchURL),
-           let best = records.first(where: { $0.syncedLyrics != nil }) ?? records.first {
+           let best = Self.bestMatch(records, trackDuration: track.duration) {
             let result = parseRecord(best)
             cache[key] = result
             self.loadedKey = key
@@ -78,9 +78,18 @@ public class LyricsService: ObservableObject {
         return cleaned.replacingOccurrences(of: #"\s*[([](feat|ft|with)\.?[^)\]]*[)\]]"#, with: "", options: .regularExpression)
     }
 
-    private struct LrcRecord: Decodable {
+    struct LrcRecord: Decodable {
         let syncedLyrics: String?
         let plainLyrics: String?
+        var duration: Double? = nil
+    }
+
+    /// Synced version whose length is closest to the Spotify track, so its timestamps match what's playing
+    /// (search results often include live versions and radio edits).
+    nonisolated static func bestMatch(_ records: [LrcRecord], trackDuration: Double) -> LrcRecord? {
+        let synced = records.filter { $0.syncedLyrics != nil }
+        return synced.min { abs(($0.duration ?? .infinity) - trackDuration) < abs(($1.duration ?? .infinity) - trackDuration) }
+            ?? records.first
     }
 
     private func requestLRC(url: URL) async -> LrcRecord? {

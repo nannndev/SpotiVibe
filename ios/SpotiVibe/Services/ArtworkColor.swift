@@ -24,9 +24,4 @@ enum ArtworkColor {
             .getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         return Color(hue: h, saturation: max(s, 0.45), brightness: max(b, 0.75))
     }
-
-    static func accent(from url: URL) async -> Color? {
-        guard let (data, _) = try? await URLSession.shared.data(from: url), let image = UIImage(data: data) else { return nil }
-        return accent(of: image)
-    }
 }
