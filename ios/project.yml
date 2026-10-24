@@ -15,6 +15,7 @@ targets:
     deploymentTarget: "16.0"
     sources:
       - path: SpotiVibe
+      - path: Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.naneps.spotivibe
@@ -51,6 +52,7 @@ targets:
     deploymentTarget: "16.0"
     sources:
       - path: SpotiVibeWidget
+      - path: Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.naneps.spotivibe.widget

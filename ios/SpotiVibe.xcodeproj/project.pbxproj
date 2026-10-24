@@ -10,6 +10,7 @@
 		0F6F5E58F044ABEDE146C672 /* WidgetBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAC3424BB26C9BBEB697C9C /* WidgetBridge.swift */; };
 		10D97BF13D6E209CEB0B12B2 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C6CA7510A23F41FE45AB8A /* ShareViewController.swift */; };
 		119C88D379AA0777A0278CCA /* LyricCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D18D4785DA396761570F1057 /* LyricCardStyle.swift */; };
+		17FF209761050DB47D2D5639 /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D555FE8E4ACB262CCB3F821 /* NowPlaying.swift */; };
 		1821DBBBB20779EE84AD5FDE /* SpotifyPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019BBA5E19491AD2FAF75089 /* SpotifyPlayerService.swift */; };
 		2FB44FA92E23914AC18E409B /* LyricsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBEE15CE664C3792DA43FFD /* LyricsService.swift */; };
 		3C1093A032E46C695D0777CA /* LyricCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB10CE5CB65C56BE359604 /* LyricCardView.swift */; };
@@ -27,6 +28,7 @@
 		BE40EDBC65304AFBF1A8E978 /* DirectShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9DCF047E2182B344CBDC03 /* DirectShareService.swift */; };
 		D4B1AB38EB8D6414CE43FB75 /* CardAspectRatio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669DFF2EBD7B07196F8975EF /* CardAspectRatio.swift */; };
 		E59C72E193E0B3FB17B4B00D /* VideoSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A35FB8A280DCDACE9B26201 /* VideoSource.swift */; };
+		F169E6A71550794CA46F7097 /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D555FE8E4ACB262CCB3F821 /* NowPlaying.swift */; };
 		F263B6CD6570429A2C3F744B /* ArtworkColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD381AD9DAF807165DB0CCF /* ArtworkColor.swift */; };
 		FB226A28B9245ADB8E2A9404 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17612C964F0C20C490BB06F /* Track.swift */; };
 /* End PBXBuildFile section */
@@ -74,6 +76,7 @@
 		14FCF0A59A19829E29ECDB5B /* SpotiVibeWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = SpotiVibeWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		212E07BE14CAFF7C729A0749 /* NowPlayingWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingWidget.swift; sourceTree = "<group>"; };
 		2A809F2A65F935F4C93B4A4E /* SpotiVibeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotiVibeApp.swift; sourceTree = "<group>"; };
+		3D555FE8E4ACB262CCB3F821 /* NowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlaying.swift; sourceTree = "<group>"; };
 		4EBEE15CE664C3792DA43FFD /* LyricsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsService.swift; sourceTree = "<group>"; };
 		4F9DCF047E2182B344CBDC03 /* DirectShareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectShareService.swift; sourceTree = "<group>"; };
 		59209538B6BC5BE44BBF75BE /* SpotifyAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyAuthService.swift; sourceTree = "<group>"; };
@@ -169,6 +172,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		9C42C3E05B2A629848B50844 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				3D555FE8E4ACB262CCB3F821 /* NowPlaying.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		AF19733EFC3BB10C73E5FBD9 /* SpotiVibe */ = {
 			isa = PBXGroup;
 			children = (
@@ -194,6 +205,7 @@
 		D4449FFAC2E57877503B82AE = {
 			isa = PBXGroup;
 			children = (
+				9C42C3E05B2A629848B50844 /* Shared */,
 				AF19733EFC3BB10C73E5FBD9 /* SpotiVibe */,
 				02F38FD6D422A012926E96DE /* SpotiVibeShare */,
 				EC90901F600D93627B34E9FB /* SpotiVibeWidget */,
@@ -348,6 +360,7 @@
 				5843BE2387B06EFB23FBFA8C /* Lyrics.swift in Sources */,
 				2FB44FA92E23914AC18E409B /* LyricsService.swift in Sources */,
 				9DCF8723B765CBEB4B6F5175 /* LyricsShareView.swift in Sources */,
+				17FF209761050DB47D2D5639 /* NowPlaying.swift in Sources */,
 				6CAB72FA2D0DD4CA178EFE6A /* SpotiVibeApp.swift in Sources */,
 				495871A474DFAB1885B8B91D /* SpotifyAuthService.swift in Sources */,
 				1821DBBBB20779EE84AD5FDE /* SpotifyPlayerService.swift in Sources */,
@@ -361,6 +374,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F169E6A71550794CA46F7097 /* NowPlaying.swift in Sources */,
 				A948F589B8310DAB300052B9 /* NowPlayingWidget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

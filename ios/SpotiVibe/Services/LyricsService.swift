@@ -8,12 +8,17 @@ public class LyricsService: ObservableObject {
     @Published public var isLoading: Bool = false
 
     private var cache: [String: Lyrics] = [:]
+    /// Song key the current `lyrics` were fetched for; nil while showing the sample fallback.
+    public private(set) var loadedKey: String?
+
+    public static func key(for track: Track) -> String { "\(track.title)\u{0000}\(track.artist)" }
 
     private init() {}
 
     public func fetchLyrics(for track: Track) async {
-        let key = "\(track.title)\u{0000}\(track.artist)"
+        let key = Self.key(for: track)
         if let cached = cache[key] {
+            self.loadedKey = key
             self.lyrics = cached
             return
         }
@@ -34,6 +39,7 @@ public class LyricsService: ObservableObject {
            let record = await requestLRC(url: url) {
             let result = parseRecord(record)
             cache[key] = result
+            self.loadedKey = key
             self.lyrics = result
             return
         }
@@ -51,11 +57,13 @@ public class LyricsService: ObservableObject {
            let best = records.first(where: { $0.syncedLyrics != nil }) ?? records.first {
             let result = parseRecord(best)
             cache[key] = result
+            self.loadedKey = key
             self.lyrics = result
             return
         }
 
         // Fallback to sample if nothing found
+        self.loadedKey = nil
         self.lyrics = Lyrics.sample
     }
 

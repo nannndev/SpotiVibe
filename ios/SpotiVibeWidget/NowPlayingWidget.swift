@@ -1,25 +1,10 @@
 import SwiftUI
 import WidgetKit
 
-/// Written by the app (SpotifyPlayerService) into the App Group; the widget only reads it.
-struct NowPlaying: Codable {
-    var title: String
-    var artist: String
-    var artwork: Data?
-
-    static let groupID = "group.com.naneps.spotivibe"
-    static let key = "nowPlaying"
-    static let placeholder = NowPlaying(title: "Play a song on Spotify", artist: "SpotiVibe", artwork: nil)
-
-    static func load() -> NowPlaying? {
-        guard let data = UserDefaults(suiteName: groupID)?.data(forKey: key) else { return nil }
-        return try? JSONDecoder().decode(NowPlaying.self, from: data)
-    }
-}
-
 struct NowPlayingEntry: TimelineEntry {
     let date: Date
     let song: NowPlaying
+    var line: Int? = nil
 }
 
 struct NowPlayingProvider: TimelineProvider {
@@ -30,8 +15,10 @@ struct NowPlayingProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<NowPlayingEntry>) -> Void) {
-        // the app reloads us when the song changes, so no scheduled refresh is needed
-        completion(Timeline(entries: [NowPlayingEntry(date: .now, song: NowPlaying.load() ?? .placeholder)], policy: .never))
+        // one entry per upcoming lyric line; the app reloads us on song change, pause or seek
+        let song = NowPlaying.load() ?? .placeholder
+        let entries = song.schedule(from: .now).map { NowPlayingEntry(date: $0.date, song: song, line: $0.line) }
+        completion(Timeline(entries: entries, policy: .never))
     }
 }
 
@@ -51,7 +38,60 @@ struct NowPlayingView: View {
         }
     }
 
+    private var lyric: (current: String, next: String?)? {
+        guard let i = entry.line, entry.song.lines.indices.contains(i) else { return nil }
+        let next = entry.song.lines.indices.contains(i + 1) ? entry.song.lines[i + 1] : nil
+        return (entry.song.lines[i], next)
+    }
+
     var body: some View {
+        if let lyric {
+            lyricBody(lyric)
+        } else {
+            songBody
+        }
+    }
+
+    private func lyricBody(_ lyric: (current: String, next: String?)) -> some View {
+        let content = HStack(alignment: .top, spacing: 12) {
+            if family == .systemMedium {
+                art.frame(width: 56, height: 56).clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Text(entry.song.title)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Text(lyric.current)
+                    .font(.system(size: family == .systemSmall ? 17 : 19, weight: .heavy))
+                    .lineLimit(family == .systemSmall ? 4 : 3)
+                    .minimumScaleFactor(0.7)
+                    .contentTransition(.opacity)
+                if let next = lyric.next {
+                    Text(next)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.4))
+                        .lineLimit(family == .systemSmall ? 1 : 2)
+                }
+                Spacer(minLength: 0)
+            }
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .widgetURL(URL(string: "spotivibe://studio"))
+        return background(content)
+    }
+
+    @ViewBuilder
+    private func background(_ content: some View) -> some View {
+        if #available(iOS 17.0, *) {
+            content.containerBackground(Color(red: 0.07, green: 0.07, blue: 0.07), for: .widget)
+        } else {
+            content.padding().background(Color(red: 0.07, green: 0.07, blue: 0.07))
+        }
+    }
+
+    private var songBody: some View {
         let content = HStack(spacing: 12) {
             if family == .systemMedium {
                 art.frame(width: 110, height: 110).clipShape(RoundedRectangle(cornerRadius: 10))
@@ -77,12 +117,7 @@ struct NowPlayingView: View {
         }
         .foregroundStyle(.white)
         .widgetURL(URL(string: "spotivibe://studio"))
-
-        if #available(iOS 17.0, *) {
-            content.containerBackground(Color(red: 0.07, green: 0.07, blue: 0.07), for: .widget)
-        } else {
-            content.padding().background(Color(red: 0.07, green: 0.07, blue: 0.07))
-        }
+        return background(content)
     }
 }
 
@@ -93,7 +128,7 @@ struct NowPlayingWidget: Widget {
             NowPlayingView(entry: entry)
         }
         .configurationDisplayName("Now Playing")
-        .description("The song you're playing, one tap from a lyric card.")
+        .description("The song you're playing with its lyrics, one tap from a lyric card.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
