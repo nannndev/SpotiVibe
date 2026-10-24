@@ -26,6 +26,10 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -66,6 +70,15 @@ fun LyricStudioScreen(
     val playerService = remember { SpotifyPlayerService.getInstance(context) }
     val lyricsService = remember { LyricsService.shared }
     val shareService = remember { DirectShareService.getInstance(context) }
+    // records the live card so Share/Save send the actual card, not the raw photo
+    val cardLayer = rememberGraphicsLayer()
+
+    suspend fun renderCard(): Bitmap {
+        val captured = cardLayer.toImageBitmap().asAndroidBitmap()
+        // shortcut: upscales the on-screen capture to 1080px wide; render offscreen at full size if text looks soft
+        val height = (1080f * captured.height / captured.width).toInt()
+        return Bitmap.createScaledBitmap(captured.copy(Bitmap.Config.ARGB_8888, false), 1080, height, true)
+    }
 
     val isAuthenticated by authService.isAuthenticated.collectAsState()
     val currentTrack by playerService.currentTrack.collectAsState()
@@ -374,6 +387,10 @@ fun LyricStudioScreen(
                     modifier = Modifier
                         .fillMaxHeight(0.92f)
                         .shadow(24.dp, RoundedCornerShape(20.dp))
+                        .drawWithContent {
+                            cardLayer.record { this@drawWithContent.drawContent() }
+                            drawLayer(cardLayer)
+                        }
                 )
 
                 // Toast Message
@@ -569,7 +586,7 @@ fun LyricStudioScreen(
                             onClick = {
                                 scope.launch {
                                     // Generate sample bitmap representation
-                                    val bmp = customArtwork ?: customBackdrop ?: Bitmap.createBitmap(1080, 1920, Bitmap.Config.ARGB_8888)
+                                    val bmp = renderCard()
                                     val shared = shareService.shareToInstagramStories(bmp, context)
                                     if (shared) toastMessage = "Opening Instagram Stories..."
                                 }
@@ -593,7 +610,7 @@ fun LyricStudioScreen(
                         IconButton(
                             onClick = {
                                 scope.launch {
-                                    val bmp = customArtwork ?: customBackdrop ?: Bitmap.createBitmap(1080, 1920, Bitmap.Config.ARGB_8888)
+                                    val bmp = renderCard()
                                     val uri = shareService.saveToGallery(bmp, currentTrack.title)
                                     toastMessage = if (uri != null) "Saved to Gallery!" else "Saved to Photos"
                                 }
@@ -610,7 +627,7 @@ fun LyricStudioScreen(
                         IconButton(
                             onClick = {
                                 scope.launch {
-                                    val bmp = customArtwork ?: customBackdrop ?: Bitmap.createBitmap(1080, 1920, Bitmap.Config.ARGB_8888)
+                                    val bmp = renderCard()
                                     shareService.shareSystem(bmp, context)
                                 }
                             },
