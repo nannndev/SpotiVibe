@@ -62,6 +62,8 @@ public struct LyricsShareView: View {
     @State private var toastMessage: String? = nil
 
     private let timer = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
+    /// Wall-clock time of the previous preview tick; nil while paused.
+    @State private var lastTick: CFTimeInterval? = nil
 
     enum ShareMode: String, CaseIterable, Identifiable {
         case photo = "Photo"
@@ -196,13 +198,20 @@ public struct LyricsShareView: View {
             .onReceive(timer) { _ in
                 guard mode == .video, !isRendering else {
                     backdropVideo?.pause(); coverVideo?.pause()
+                    lastTick = nil
                     return
                 }
                 if isPlaying {
-                    previewElapsed += 1.0 / 30.0
+                    // advance by real elapsed time: timer ticks get dropped when the main thread is busy,
+                    // and counting ticks made the preview run slower than the song
+                    let now = CACurrentMediaTime()
+                    previewElapsed += min(now - (lastTick ?? now), 0.25)
+                    lastTick = now
                     if previewElapsed >= duration {
                         previewElapsed = 0
                     }
+                } else {
+                    lastTick = nil
                 }
                 // runs while paused too, so scrubbing updates the clip frame
                 backdropFrame = backdropVideo?.previewFrame(at: previewElapsed, playing: isPlaying)
@@ -853,7 +862,7 @@ public struct LyricsShareView: View {
             } else {
                 VStack(spacing: 8) {
                     // the MP4 has no song audio; this is where to start the track when adding music in an editor
-                    Label("Add the song from \(formatTime(songStartTime)) to match the lyrics", systemImage: "music.note")
+                    Label("Add the song from \(preciseTime(songStartTime)) to match the lyrics", systemImage: "music.note")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(Theme.textSecondary)
                     Button {
@@ -1004,7 +1013,7 @@ public struct LyricsShareView: View {
 
                 self.isRendering = false
                 try? await DirectShareService.shared.saveToPhotos(videoURL: final)
-                self.showToast("\(savedMessage) Start the song at \(self.formatTime(startSongTime)).")
+                self.showToast("\(savedMessage) Start the song at \(self.preciseTime(startSongTime)).")
                 DirectShareService.shared.presentShareSheet(items: [final])
             } catch {
                 self.isRendering = false
@@ -1073,6 +1082,12 @@ public struct LyricsShareView: View {
     private func formatTime(_ sec: Double) -> String {
         let s = max(0, Int(sec))
         return String(format: "%d:%02d", s / 60, s % 60)
+    }
+
+    /// m:ss.t — editors like CapCut need sub-second precision to line the song up with the lyrics.
+    private func preciseTime(_ sec: Double) -> String {
+        let tenths = Int((max(0, sec) * 10).rounded())
+        return String(format: "%d:%02d.%d", tenths / 600, (tenths / 10) % 60, tenths % 10)
     }
 
     // MARK: - Line Picker Sheet

@@ -89,16 +89,18 @@ public enum LyricVideoGenerator {
             let renderer = ImageRenderer(content: view)
             renderer.scale = scale
 
-            guard let renderedCG = renderer.cgImage else { continue }
+            // skipping a frame would shift the rest of the video; fail instead
+            guard let renderedCG = renderer.cgImage else { throw VideoError.frameExtractionFailed }
 
-            var spinCount = 0
-            while !writerInput.isReadyForMoreMediaData && spinCount < 100 {
-                try? await Task.sleep(nanoseconds: 10_000_000)
-                spinCount += 1
+            // wait as long as it takes: giving up and appending anyway silently drops the frame,
+            // which shortens the video and pulls every later lyric earlier
+            while !writerInput.isReadyForMoreMediaData {
+                try await Task.sleep(nanoseconds: 5_000_000)
             }
 
-            if let pixelBuffer = pixelBuffer(from: renderedCG, size: pixelSize) {
-                adaptor.append(pixelBuffer, withPresentationTime: presentationTime)
+            guard let pixelBuffer = pixelBuffer(from: renderedCG, size: pixelSize),
+                  adaptor.append(pixelBuffer, withPresentationTime: presentationTime) else {
+                throw VideoError.frameExtractionFailed
             }
 
             onProgress(Double(frameIndex + 1) / Double(totalFrames))
